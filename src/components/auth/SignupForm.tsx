@@ -2,6 +2,23 @@ import Link from "next/link";
 
 import AuthShell from "./AuthShell";
 
+type SignupFormProps = {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  agreedToTerms: boolean;
+  errorMessage: string;
+  successMessage: string;
+  isSubmitting: boolean;
+  onNameChange: (value: string) => void;
+  onEmailChange: (value: string) => void;
+  onPasswordChange: (value: string) => void;
+  onConfirmPasswordChange: (value: string) => void;
+  onAgreeChange: (checked: boolean) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+};
+
 function UserIcon() {
   return (
     <svg
@@ -57,7 +74,22 @@ function LockIcon() {
   );
 }
 
-export default function SignupForm() {
+export default function SignupForm({
+  name,
+  email,
+  password,
+  confirmPassword,
+  agreedToTerms,
+  errorMessage,
+  successMessage,
+  isSubmitting,
+  onNameChange,
+  onEmailChange,
+  onPasswordChange,
+  onConfirmPasswordChange,
+  onAgreeChange,
+  onSubmit,
+}: SignupFormProps) {
   return (
     <AuthShell
       activeTab="signup"
@@ -74,7 +106,7 @@ export default function SignupForm() {
         </p>
       }
     >
-      <form className="space-y-6">
+      <form className="space-y-6" onSubmit={onSubmit}>
         <div className="space-y-3">
           <label
             htmlFor="signup-name"
@@ -88,6 +120,10 @@ export default function SignupForm() {
               id="signup-name"
               type="text"
               placeholder="트리픽 사용자"
+              value={name}
+              onChange={(event) => onNameChange(event.target.value)}
+              required
+              autoComplete="name" /* 이름 자동완성 */
               className="w-full bg-transparent text-[0.9rem] text-[#13294b] placeholder:text-[#c6c9d2] outline-none"
             />
           </div>
@@ -106,6 +142,10 @@ export default function SignupForm() {
               id="signup-email"
               type="email"
               placeholder="example@tripick.com"
+              value={email}
+              onChange={(event) => onEmailChange(event.target.value)}
+              required
+              autoComplete="email"
               className="w-full bg-transparent text-[0.9rem] text-[#13294b] placeholder:text-[#c6c9d2] outline-none"
             />
           </div>
@@ -125,6 +165,10 @@ export default function SignupForm() {
                 id="signup-password"
                 type="password"
                 placeholder="8자 이상"
+                value={password}
+                onChange={(event) => onPasswordChange(event.target.value)}
+                required
+                autoComplete="new-password"
                 className="w-full bg-transparent text-[0.9rem] text-[#13294b] placeholder:text-[#c6c9d2] outline-none"
               />
             </div>
@@ -143,6 +187,10 @@ export default function SignupForm() {
                 id="signup-password-confirm"
                 type="password"
                 placeholder="비밀번호 확인"
+                value={confirmPassword}
+                onChange={(event) => onConfirmPasswordChange(event.target.value)}
+                required
+                autoComplete="new-password"
                 className="w-full bg-transparent text-[0.9rem] text-[#13294b] placeholder:text-[#c6c9d2] outline-none"
               />
             </div>
@@ -153,20 +201,32 @@ export default function SignupForm() {
         <label className="flex items-start gap-3 rounded-2xl border border-[#e8e1d5] bg-white/80 px-4 py-4 text-[0.82rem] leading-5 text-[#5f6679]">
           <input
             type="checkbox"
+            checked={agreedToTerms}
+            onChange={(event) => onAgreeChange(event.target.checked)}
             className="mt-1 h-4 w-4 rounded border-[#d3d6dd] text-[#37d2c6] focus:ring-[#37d2c6]"
           />
-          <span>
-            서비스 이용약관 및 개인정보 처리방침에 동의합니다.
-          </span>
+          <span>서비스 이용약관 및 개인정보 처리방침에 동의합니다.</span>
         </label>
 
         {/* 기본 회원가입 버튼 */}
         <button
-          type="button"
-          className="mt-2 h-15 w-full rounded-full bg-[#37d2c6] text-[1rem] font-semibold text-white shadow-[0_18px_36px_rgba(55,210,198,0.34)] transition hover:-translate-y-0.5 hover:bg-[#24c4b7]"
+          type="submit"
+          disabled={isSubmitting}
+          className="mt-2 h-15 w-full rounded-full bg-[#37d2c6] text-[1rem] font-semibold text-white shadow-[0_18px_36px_rgba(55,210,198,0.34)] transition hover:-translate-y-0.5 hover:bg-[#24c4b7] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          회원가입
+          {isSubmitting ? "가입 중..." : "회원가입"}
         </button>
+
+        {errorMessage ? (
+          <p className="text-center text-[0.82rem] text-[#d64545]">
+            {errorMessage}
+          </p>
+        ) : null}
+        {successMessage ? (
+          <p className="text-center text-[0.82rem] text-[#2b8f66]">
+            {successMessage}
+          </p>
+        ) : null}
       </form>
     </AuthShell>
   );
