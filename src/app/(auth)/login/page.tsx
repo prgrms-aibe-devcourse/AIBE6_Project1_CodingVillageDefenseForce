@@ -1,3 +1,5 @@
-export default function Main() {
-  return <div>로그인</div>;
-} 
+import LoginForm from "@/components/auth/LoginForm";
+
+export default function LoginPage() {
+  return <LoginForm />;
+}

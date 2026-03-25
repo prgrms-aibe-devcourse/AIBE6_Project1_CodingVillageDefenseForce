@@ -1,3 +1,5 @@
-export default function Main() {
-  return <div>회원가입</div>;
-} 
+import SignupForm from "@/components/auth/SignupForm";
+
+export default function SignupPage() {
+  return <SignupForm />;
+}
