@@ -1,9 +1,9 @@
 'use client'
 
-import LoginForm from '@/components/auth/LoginForm'
-import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
-import { FormEvent, useState } from 'react'
+import LoginForm from "@/components/auth/LoginForm";
+import { createClient } from "@/lib/supabase/client";
+import { FormEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter()
@@ -22,6 +22,7 @@ export default function LoginPage() {
     setInfoMessage('')
     setIsSubmitting(true)
 
+    const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({
       email: email.trim().toLowerCase(),
       password,
@@ -34,9 +35,9 @@ export default function LoginPage() {
     }
 
     // 로그인 완료 후 메인으로 이동
-    router.push('/')
-    router.refresh()
-  }
+    router.push("/main");
+    router.refresh();
+  };
 
   const signInWithOAuth = async (
     provider: 'google' | 'kakao',
@@ -47,9 +48,14 @@ export default function LoginPage() {
     setInfoMessage('')
     onSubmittingChange(true)
 
+    const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-    })
+      options: {
+        // OAuth 완료 후 callback에서 code 교환 후 /main으로 이동
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
 
     if (error) {
       setErrorMessage(failureMessage)
@@ -73,8 +79,28 @@ export default function LoginPage() {
     )
   }
 
+  // 이미 로그인된 사용자는 로그인 페이지 접근 시 /main으로 보냄
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+        if (!cancelled && data.user) router.replace("/main");
+      } catch {
+        // 세션이 없거나 네트워크 문제면 그냥 로그인 화면 유지
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
+
   const handleForgotPassword = async () => {
     const normalizedEmail = email.trim().toLowerCase()
+    const supabase = createClient()
 
     setErrorMessage('')
     setInfoMessage('')
@@ -90,6 +116,7 @@ export default function LoginPage() {
         redirectTo: `${window.location.origin}/login`,
       },
     )
+
 
     if (error) {
       setErrorMessage('비밀번호 재설정 메일 발송에 실패했습니다.')
