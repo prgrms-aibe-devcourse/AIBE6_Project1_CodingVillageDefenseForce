@@ -7,10 +7,23 @@ type LoginFormProps = {
   email: string;
   password: string;
   errorMessage: string;
+  infoMessage: string;
   isSubmitting: boolean;
+  isGoogleSubmitting: boolean;
+  isKakaoSubmitting: boolean;
   onEmailChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
   onSubmit: FormEventHandler<HTMLFormElement>;
+  onForgotPassword: () => Promise<void>;
+  onGoogleLogin: () => Promise<void>;
+  onKakaoLogin: () => Promise<void>;
+};
+
+type SocialButtonsProps = {
+  onGoogleLogin: () => Promise<void>;
+  isGoogleSubmitting: boolean;
+  onKakaoLogin: () => Promise<void>;
+  isKakaoSubmitting: boolean;
 };
 
 function MailIcon() {
@@ -84,25 +97,34 @@ function KakaoLogo() {
   );
 }
 
-function SocialButtons() {
+function SocialButtons({
+  onGoogleLogin,
+  isGoogleSubmitting,
+  onKakaoLogin,
+  isKakaoSubmitting,
+}: SocialButtonsProps) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      {/* 구글 로그인 버튼*/}
+      {/* 구글 로그인 버튼 */}
       <button
         type="button"
+        onClick={() => void onGoogleLogin()}
+        disabled={isGoogleSubmitting}
         className="flex h-14 items-center justify-center gap-3 rounded-full border border-[#e2ddcf] bg-white text-[0.88rem] font-medium text-[#2b3550] transition hover:border-[#cfd7e8] hover:shadow-[0_14px_34px_rgba(19,41,75,0.08)]"
       >
         <GoogleLogo />
-        Google 로그인
+        {isGoogleSubmitting ? "Google 이동 중..." : "Google 로그인"}
       </button>
 
-      {/* 카카오 로그인 버튼 */}
+      {/* 카카오 로그인 버튼*/}
       <button
         type="button"
+        onClick={() => void onKakaoLogin()}
+        disabled={isKakaoSubmitting}
         className="flex h-14 items-center justify-center gap-3 rounded-full bg-[#ffd600] text-[0.86rem] font-semibold text-[#2e2200] transition hover:brightness-[0.98] hover:shadow-[0_16px_34px_rgba(255,214,0,0.28)]"
       >
         <KakaoLogo />
-        카카오 로그인
+        {isKakaoSubmitting ? "카카오 이동 중..." : "카카오 로그인"}
       </button>
     </div>
   );
@@ -112,10 +134,16 @@ export default function LoginForm({
   email,
   password,
   errorMessage,
+  infoMessage,
   isSubmitting,
+  isGoogleSubmitting,
+  isKakaoSubmitting,
   onEmailChange,
   onPasswordChange,
   onSubmit,
+  onForgotPassword,
+  onGoogleLogin,
+  onKakaoLogin,
 }: LoginFormProps) {
   return (
     <AuthShell
@@ -178,13 +206,13 @@ export default function LoginForm({
             />
           </div>
           <div className="flex justify-end gap-6 text-[0.82rem] text-[#707789]">
-            {/* 아이디 찾기 버튼 */}
-            <button type="button" className="transition hover:text-[#13294b]">
-              아이디 찾기
-            </button>
             {/* 비밀번호 찾기 버튼 */}
-            <button type="button" className="transition hover:text-[#13294b]">
-              비밀번호 찾기
+            <button
+              type="button"
+              onClick={() => void onForgotPassword()}
+              className="transition hover:text-[#13294b]"
+            >
+              비밀번호 재설정
             </button>
           </div>
         </div>
@@ -203,6 +231,11 @@ export default function LoginForm({
             {errorMessage}
           </p>
         ) : null}
+        {infoMessage ? (
+          <p className="text-center text-[0.82rem] text-[#2b8f66]">
+            {infoMessage}
+          </p>
+        ) : null}
       </form>
 
       {/* 소셜 로그인 버튼 영역 */}
@@ -213,7 +246,12 @@ export default function LoginForm({
           <div className="h-px flex-1 bg-[#e2ddd1]" />
         </div>
         <div className="mt-8">
-          <SocialButtons />
+          <SocialButtons
+            onGoogleLogin={onGoogleLogin}
+            isGoogleSubmitting={isGoogleSubmitting}
+            onKakaoLogin={onKakaoLogin}
+            isKakaoSubmitting={isKakaoSubmitting}
+          />
         </div>
       </div>
     </AuthShell>

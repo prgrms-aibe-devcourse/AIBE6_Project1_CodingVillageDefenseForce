@@ -50,9 +50,9 @@ export default function AuthShell({
                 특별한 여행의 시작.
               </p>
               <p className="mt-3 text-[0.8rem] leading-5 text-[#a6b4d8] sm:text-[0.9rem]">
-                에디터가 엄선한 취향 저격 여행지와
+                테마 별 여행지들을 찾아보고
                 <br />
-                감각적인 일정을 경험해보세요.
+                나만의 여행 일정을 만들어보세요.
               </p>
             </div>
 
