@@ -1,6 +1,17 @@
 import Link from "next/link";
+import { FormEventHandler } from "react";
 
 import AuthShell from "./AuthShell";
+
+type LoginFormProps = {
+  email: string;
+  password: string;
+  errorMessage: string;
+  isSubmitting: boolean;
+  onEmailChange: (value: string) => void;
+  onPasswordChange: (value: string) => void;
+  onSubmit: FormEventHandler<HTMLFormElement>;
+};
 
 function MailIcon() {
   return (
@@ -76,7 +87,7 @@ function KakaoLogo() {
 function SocialButtons() {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      {/* 구글 로그인 버튼 */}
+      {/* 구글 로그인 버튼*/}
       <button
         type="button"
         className="flex h-14 items-center justify-center gap-3 rounded-full border border-[#e2ddcf] bg-white text-[0.88rem] font-medium text-[#2b3550] transition hover:border-[#cfd7e8] hover:shadow-[0_14px_34px_rgba(19,41,75,0.08)]"
@@ -97,7 +108,15 @@ function SocialButtons() {
   );
 }
 
-export default function LoginForm() {
+export default function LoginForm({
+  email,
+  password,
+  errorMessage,
+  isSubmitting,
+  onEmailChange,
+  onPasswordChange,
+  onSubmit,
+}: LoginFormProps) {
   return (
     <AuthShell
       activeTab="login"
@@ -114,7 +133,8 @@ export default function LoginForm() {
         </p>
       }
     >
-      <form className="space-y-6">
+      {/* 이메일/비밀번호 기본 로그인 폼 */}
+      <form className="space-y-6" onSubmit={onSubmit}>
         <div className="space-y-3">
           <label
             htmlFor="login-email"
@@ -128,6 +148,10 @@ export default function LoginForm() {
               id="login-email"
               type="email"
               placeholder="example@tripick.com"
+              value={email}
+              onChange={(event) => onEmailChange(event.target.value)}
+              required
+              autoComplete="email"
               className="w-full bg-transparent text-[0.9rem] text-[#13294b] placeholder:text-[#c6c9d2] outline-none"
             />
           </div>
@@ -146,6 +170,10 @@ export default function LoginForm() {
               id="login-password"
               type="password"
               placeholder="••••••••"
+              value={password}
+              onChange={(event) => onPasswordChange(event.target.value)}
+              required
+              autoComplete="current-password"
               className="w-full bg-transparent text-[0.9rem] text-[#13294b] placeholder:text-[#c6c9d2] outline-none"
             />
           </div>
@@ -163,11 +191,18 @@ export default function LoginForm() {
 
         {/* 기본 로그인 버튼 */}
         <button
-          type="button"
-          className="mt-2 h-15 w-full rounded-full bg-[#37d2c6] text-[1rem] font-semibold text-white shadow-[0_18px_36px_rgba(55,210,198,0.34)] transition hover:-translate-y-0.5 hover:bg-[#24c4b7]"
+          type="submit"
+          disabled={isSubmitting}
+          className="mt-2 h-15 w-full rounded-full bg-[#37d2c6] text-[1rem] font-semibold text-white shadow-[0_18px_36px_rgba(55,210,198,0.34)] transition hover:-translate-y-0.5 hover:bg-[#24c4b7] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          로그인
+          {isSubmitting ? "로그인 중..." : "로그인"}
         </button>
+
+        {errorMessage ? (
+          <p className="text-center text-[0.82rem] text-[#d64545]">
+            {errorMessage}
+          </p>
+        ) : null}
       </form>
 
       {/* 소셜 로그인 버튼 영역 */}
