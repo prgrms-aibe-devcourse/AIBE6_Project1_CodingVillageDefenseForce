@@ -7,8 +7,8 @@ export default async function DetailPage() {
   const searchTerm = '서울 한강공원' // test 검색어
 
   // 검색 정보 가져오기
-   const description = await getDescription(searchTerm)
-   const images = await getImages(searchTerm)
+  const description = await getDescription(searchTerm)
+  const images = await getImages(searchTerm)
 
   // 첫 장을 메인 이미지로 표현
   const heroImage = images.length > 0 ? images[0].url : 'images/default.jpg'
