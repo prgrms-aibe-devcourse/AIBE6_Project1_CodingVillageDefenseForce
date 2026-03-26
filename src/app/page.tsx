@@ -48,7 +48,7 @@ export default function LandingPage() {
         </p>
 
         <Link
-          href={'/main' as any}
+          href={'/login' as any}
           className="rounded-full bg-[#1D9E75] px-14 py-4 text-base font-medium text-white shadow-[0_4px_20px_rgba(29,158,117,0.25)] transition-all hover:bg-[#0F6E56] hover:-translate-y-0.5 active:scale-95"
         >
           시작하기
