@@ -1,67 +1,34 @@
 'use client'
 
-import { useState } from 'react'
-
-type Category = 'LANDMARK' | 'CULTURE' | 'CITY' | 'NATURE'
+import Header from '@/components/layout/Header'
+import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState } from 'react'
 
 interface Place {
   id: number
-  cat: Category
   title: string
-  rating: string
-  desc: string
-  price: string
-  bg: string
-}
-
-const INITIAL_PLACES: Place[] = [
-  {
-    id: 1,
-    cat: 'LANDMARK',
-    title: '타지마할, 아그라',
-    rating: '4.9',
-    desc: '무굴 제국의 건축 예술의 정점이며 유네스코 세계문화유산인 대리석 묘당입니다.',
-    price: '₩24,000 ~',
-    bg: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=400&q=60',
-  },
-  {
-    id: 2,
-    cat: 'CULTURE',
-    title: '기요미즈데라, 교토',
-    rating: '4.8',
-    desc: '교토 시내를 한눈에 내려다볼 수 있는 절벽 위의 목조 테라스가 유명한 사찰입니다.',
-    price: '₩5,000 ~',
-    bg: 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=400&q=60',
-  },
-  {
-    id: 3,
-    cat: 'CITY',
-    title: '에펠탑, 파리',
-    rating: '4.7',
-    desc: '프랑스의 상징적인 랜드마크로 야경이 특히 아름다운 낭만적인 장소입니다.',
-    price: '₩32,000 ~',
-    bg: 'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=400&q=60',
-  },
-  {
-    id: 4,
-    cat: 'NATURE',
-    title: '성산일출봉, 제주',
-    rating: '4.9',
-    desc: '유네스코 세계자연유산으로 등재된 제주의 대표 명소입니다.',
-    price: '무료',
-    bg: 'https://images.unsplash.com/photo-1570366583862-f91883984fde?w=400&q=60',
-  },
-]
-
-const CAT_STYLES: Record<Category, string> = {
-  LANDMARK: 'bg-[#E1F5EE] text-[#0F6E56]',
-  CULTURE: 'bg-[#E6F1FB] text-[#185FA5]',
-  CITY: 'bg-[#FAEEDA] text-[#854F0B]',
-  NATURE: 'bg-[#EAF3DE] text-[#3B6D11]',
+  content: string
+  location: string
+  image: string
 }
 
 export default function FavoritesPage() {
-  const [places, setPlaces] = useState<Place[]>(INITIAL_PLACES)
+  const [places, setPlaces] = useState<Place[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase.from('place').select('*')
+      if (error) {
+        console.error('에러:', error)
+        return
+      }
+      setPlaces(data)
+      setLoading(false)
+    }
+    fetchPlaces()
+  }, [])
 
   const remove = (id: number) => {
     setPlaces((prev) => prev.filter((p) => p.id !== id))
@@ -69,60 +36,11 @@ export default function FavoritesPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      {/* 상단 검색바 */}
-      <div className="flex items-center gap-2.5 border-b border-[#e8e6e0] bg-white px-7 py-3">
-        <div className="flex flex-1 items-center gap-2 rounded-[10px] border border-[#e8e6e0] bg-[#f7f6f3] px-3.5 py-2">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="#aaa"
-            strokeWidth="1.5"
-          >
-            <circle cx="7" cy="7" r="4.5" />
-            <path d="M10.5 10.5L14 14" />
-          </svg>
-          <input
-            type="text"
-            placeholder="장소, 도시, 호텔 검색"
-            className="flex-1 bg-transparent text-[13px] text-[#2c2c2a] placeholder-[#bbb] outline-none"
-          />
-        </div>
-        {/* 알림 */}
-        <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#e8e6e0] bg-white text-[#888] transition hover:bg-[#f7f6f3]">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          >
-            <path d="M8 2a4 4 0 014 4c0 3 1 4 1 4H3s1-1 1-4a4 4 0 014-4z" />
-            <path d="M7 14h2" />
-          </svg>
-        </button>
-        {/* 설정 */}
-        <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#e8e6e0] bg-white text-[#888] transition hover:bg-[#f7f6f3]">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          >
-            <circle cx="8" cy="8" r="2.5" />
-            <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4M3.2 12.8l1.4-1.4M11.4 4.6l1.4-1.4" />
-          </svg>
-        </button>
-      </div>
+      <Header placeholder="장소, 도시, 호텔 검색" />
 
-      {/* 콘텐츠 */}
       <div className="flex-1 overflow-y-auto px-7 py-7">
         {/* 헤더 */}
-        <div className="mb-6 flex items-flex-end justify-between">
+        <div className="mb-6 flex items-center justify-between">
           <div>
             <p className="mb-1 text-[11px] font-medium uppercase tracking-[2px] text-[#1D9E75]">
               My Collection
@@ -135,7 +53,11 @@ export default function FavoritesPage() {
         </div>
 
         {/* 카드 그리드 */}
-        {places.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-24 text-[#bbb] text-[14px]">
+            로딩 중...
+          </div>
+        ) : places.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-[#bbb] gap-3">
             <svg
               width="40"
@@ -193,7 +115,7 @@ function PlaceCard({
       <div className="relative h-[180px] overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
-          style={{ backgroundImage: `url('${place.bg}')` }}
+          style={{ backgroundImage: `url('${place.image}')` }}
         />
         {/* 삭제 버튼 */}
         <button
@@ -205,32 +127,23 @@ function PlaceCard({
         >
           ×
         </button>
-        {/* 카테고리 배지 */}
-        <span
-          className={`absolute bottom-2.5 left-2.5 rounded px-2 py-0.5 text-[10px] font-medium uppercase tracking-[1px] ${CAT_STYLES[place.cat]}`}
-        >
-          {place.cat}
+        {/* 지역 배지 */}
+        <span className="absolute bottom-2.5 left-2.5 rounded px-2 py-0.5 text-[10px] font-medium bg-[#E1F5EE] text-[#0F6E56] tracking-[1px]">
+          {place.location}
         </span>
       </div>
 
       {/* 카드 바디 */}
       <div className="px-4 py-3.5">
-        <div className="mb-1.5 flex items-start justify-between gap-2">
+        <div className="mb-1.5">
           <span className="text-[15px] font-medium leading-snug text-[#2c2c2a]">
             {place.title}
           </span>
-          <span className="flex flex-shrink-0 items-center gap-1 text-[13px] font-medium text-[#2c2c2a]">
-            <span className="text-[#1D9E75]">★</span>
-            {place.rating}
-          </span>
         </div>
         <p className="mb-3 line-clamp-2 text-[12px] leading-relaxed text-[#888]">
-          {place.desc}
+          {place.content}
         </p>
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] font-medium text-[#2c2c2a]">
-            {place.price}
-          </span>
+        <div className="flex items-center justify-end">
           <span className="flex items-center gap-1 text-[12px] font-medium uppercase tracking-wide text-[#1D9E75]">
             DETAILS
             <svg
