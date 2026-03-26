@@ -1,6 +1,5 @@
 'use client'
 
-import AIChatModal from '@/components/ai/AIChatModal'
 import Link from 'next/link'
 
 export default function LandingPage() {
@@ -121,7 +120,6 @@ export default function LandingPage() {
           </Link>
         ))}
       </nav>
-      <AIChatModal />
     </div>
   )
 }

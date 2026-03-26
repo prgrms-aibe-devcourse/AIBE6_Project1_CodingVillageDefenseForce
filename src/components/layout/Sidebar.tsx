@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import React from 'react'
+import AIChatModal from '../ai/AIChatModal'
 
 const NAV_ITEMS = [
   {
@@ -97,31 +99,32 @@ export default function Sidebar() {
           </span>
         </div>
       </div>
-
       {/* 네비 */}
       <nav className="flex flex-col gap-0.5 px-2">
         {NAV_ITEMS.map(({ id, label, href, icon }) => {
           const isActive = pathname === href
           return (
-            <Link
-              key={id}
-              href={href as any}
-              className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[14px] transition-all
+            <React.Fragment key={id}>
+              <Link
+                key={id}
+                href={href as any}
+                className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[14px] transition-all
                 ${
                   isActive
                     ? 'bg-[#E1F5EE] text-[#0F6E56] font-medium'
                     : 'text-[#888] hover:bg-[#f7f6f3] hover:text-[#2c2c2a]'
                 }`}
-            >
-              {icon}
-              {label}
-            </Link>
+              >
+                {icon}
+                {label}
+              </Link>
+              {id !== 'mypage' && <AIChatModal />}
+            </React.Fragment>
           )
         })}
       </nav>
 
       <div className="flex-1" />
-
       {/* 유저 */}
       <div className="mx-2 flex cursor-pointer items-center gap-2.5 rounded-lg border border-[#e8e6e0] px-3 py-2.5 hover:bg-[#f7f6f3]">
         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#1D9E75] text-[13px] font-medium text-white">
