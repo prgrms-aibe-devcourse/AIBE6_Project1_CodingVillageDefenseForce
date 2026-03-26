@@ -49,7 +49,7 @@ export default function LandingPage() {
         </p>
 
         <Link
-          href={'/login' as any}
+          href={'/main' as any}
           className="rounded-full bg-[#1D9E75] px-14 py-4 text-base font-medium text-white shadow-[0_4px_20px_rgba(29,158,117,0.25)] transition-all hover:bg-[#0F6E56] hover:-translate-y-0.5 active:scale-95"
         >
           시작하기
@@ -111,7 +111,7 @@ export default function LandingPage() {
         ].map(({ label, icon, active }) => (
           <Link
             key={label}
-            href={'/login' as any}
+            href={'/main' as any}
             className={`flex flex-col items-center gap-1 transition-opacity ${active ? 'opacity-100' : 'opacity-40 hover:opacity-80'}`}
           >
             <span className="text-[#2c2c2a]">{icon}</span>
