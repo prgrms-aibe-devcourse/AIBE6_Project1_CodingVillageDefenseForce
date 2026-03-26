@@ -112,14 +112,14 @@ export default function SignupForm({
             htmlFor="signup-name"
             className="block text-[0.9rem] font-medium text-[#535c71]"
           >
-            이름
+            사용하실 닉네임
           </label>
           <div className="flex h-15 items-center gap-3 rounded-2xl border border-[#e7e1d6] bg-white px-4 shadow-[0_8px_24px_rgba(19,41,75,0.04)]">
             <UserIcon />
             <input
               id="signup-name"
               type="text"
-              placeholder="트리픽 사용자"
+              placeholder="트리픽 닉네임"
               value={name}
               onChange={(event) => onNameChange(event.target.value)}
               required
