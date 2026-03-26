@@ -1,7 +1,7 @@
 'use client'
 
 import SignupForm from '@/components/auth/SignupForm'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { FormEvent, useState } from 'react'
 
 const SIGNUP_SUCCESS_MESSAGE = '가입이 완료되었습니다. 로그인해주세요.'
@@ -18,6 +18,7 @@ function getSignupErrorMessage(message: string) {
 }
 
 export default function SignupPage() {
+  const supabase = createClient()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -71,6 +72,30 @@ export default function SignupPage() {
       setErrorMessage('이미 가입된 이메일입니다.')
       setIsSubmitting(false)
       return
+    }
+
+    if (data?.user) {
+      // auth uid를 public.user.uid에 저장
+      const createdAt = data.user.created_at
+        ? new Date(data.user.created_at).toISOString().slice(0, 10)
+        : null
+
+      const { error: insertError } = await supabase.from('user').upsert(
+        {
+          uid: data.user.id,
+          display_name: trimmedName,
+          email: normalizedEmail,
+          createat: createdAt,
+        },
+        // uid 기준 중복 가입/SSO 재로그인 시 실패를 방지합니다.
+        { onConflict: 'uid' },
+      )
+
+      if (insertError) {
+        setErrorMessage('가입 정보 저장 중 오류가 발생했습니다.')
+        setIsSubmitting(false)
+        return
+      }
     }
 
     setIsSubmitting(false)
