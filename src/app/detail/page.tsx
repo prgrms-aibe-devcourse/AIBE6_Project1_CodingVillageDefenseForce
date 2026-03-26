@@ -1,12 +1,14 @@
+import KakaoMap from './KakaoMap'
+
 import { getDescription, getImages } from '@/lib/api/detailSearch'
 
 export default async function DetailPage() {
   // TODO: 실제 서비스 시 하드 코딩 제거 -> 검색어 받아와서 처리
-  const searchTerm = '서울 한강' // test 검색어
+  const searchTerm = '서울 한강공원' // test 검색어
 
   // 검색 정보 가져오기
-  const description = await getDescription(searchTerm)
-  const images = await getImages(searchTerm)
+   const description = await getDescription(searchTerm)
+   const images = await getImages(searchTerm)
 
   // 첫 장을 메인 이미지로 표현
   const heroImage = images.length > 0 ? images[0].url : 'images/default.jpg'
@@ -152,12 +154,9 @@ export default async function DetailPage() {
 
         {/* 우측 사이드바 영역 */}
         <div className="lg:w-[35%] flex flex-col gap-10">
-          {/* 지도 영역 (추후 카카오/구글 맵 연동 공간) */}
-          <section className="relative w-full h-[240px] bg-[#BCE0D7] rounded-[24px] overflow-hidden flex flex-col items-center justify-end pb-6 border-[6px] border-white shadow-sm">
-            <div className="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/cartographer.png')]"></div>
-            <button className="relative z-10 bg-white text-[#222] font-bold px-6 py-3 rounded-full shadow-md text-sm flex items-center gap-2 hover:bg-gray-50 transition">
-              <span>↪</span> 길찾기
-            </button>
+          {/* 지도 영역 (추후 카카오/구글 맵 연동 공간) -> (카카오 맵 추가 완료) */}
+          <section className="relative w-full h-[240px] bg-[#BCE0D7] rounded-[24px]  overflow-hidden border-[6px] border-white shadow-sm">
+            <KakaoMap searchTerm={`${searchTerm}`} />
           </section>
 
           {/* 갤러리 영역 */}
