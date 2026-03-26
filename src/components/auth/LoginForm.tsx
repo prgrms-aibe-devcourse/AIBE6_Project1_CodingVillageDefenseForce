@@ -1,30 +1,30 @@
-import Link from "next/link";
-import { FormEventHandler } from "react";
+import Link from 'next/link'
+import { FormEventHandler } from 'react'
 
-import AuthShell from "./AuthShell";
+import AuthShell from './AuthShell'
 
 type LoginFormProps = {
-  email: string;
-  password: string;
-  errorMessage: string;
-  infoMessage: string;
-  isSubmitting: boolean;
-  isGoogleSubmitting: boolean;
-  isKakaoSubmitting: boolean;
-  onEmailChange: (value: string) => void;
-  onPasswordChange: (value: string) => void;
-  onSubmit: FormEventHandler<HTMLFormElement>;
-  onForgotPassword: () => Promise<void>;
-  onGoogleLogin: () => Promise<void>;
-  onKakaoLogin: () => Promise<void>;
-};
+  email: string
+  password: string
+  errorMessage: string
+  infoMessage: string
+  isSubmitting: boolean
+  isGoogleSubmitting: boolean
+  isKakaoSubmitting: boolean
+  onEmailChange: (value: string) => void
+  onPasswordChange: (value: string) => void
+  onSubmit: FormEventHandler<HTMLFormElement>
+  onForgotPassword: () => Promise<void>
+  onGoogleLogin: () => Promise<void>
+  onKakaoLogin: () => Promise<void>
+}
 
 type SocialButtonsProps = {
-  onGoogleLogin: () => Promise<void>;
-  isGoogleSubmitting: boolean;
-  onKakaoLogin: () => Promise<void>;
-  isKakaoSubmitting: boolean;
-};
+  onGoogleLogin: () => Promise<void>
+  isGoogleSubmitting: boolean
+  onKakaoLogin: () => Promise<void>
+  isKakaoSubmitting: boolean
+}
 
 function MailIcon() {
   return (
@@ -41,7 +41,7 @@ function MailIcon() {
       <rect x="3" y="5" width="18" height="14" rx="2" />
       <path d="M4 7l8 6 8-6" />
     </svg>
-  );
+  )
 }
 
 function LockIcon() {
@@ -60,7 +60,7 @@ function LockIcon() {
       <path d="M8 11V8a4 4 0 118 0v3" />
       <circle cx="12" cy="16" r="1" />
     </svg>
-  );
+  )
 }
 
 function GoogleLogo() {
@@ -83,7 +83,7 @@ function GoogleLogo() {
         fill="#EA4335"
       />
     </svg>
-  );
+  )
 }
 
 function KakaoLogo() {
@@ -94,7 +94,7 @@ function KakaoLogo() {
         fill="#191600"
       />
     </svg>
-  );
+  )
 }
 
 function SocialButtons({
@@ -113,7 +113,7 @@ function SocialButtons({
         className="flex h-14 items-center justify-center gap-3 rounded-full border border-[#e2ddcf] bg-white text-[0.88rem] font-medium text-[#2b3550] transition hover:border-[#cfd7e8] hover:shadow-[0_14px_34px_rgba(19,41,75,0.08)]"
       >
         <GoogleLogo />
-        {isGoogleSubmitting ? "Google 이동 중..." : "Google 로그인"}
+        {isGoogleSubmitting ? 'Google 이동 중...' : 'Google 로그인'}
       </button>
 
       {/* 카카오 로그인 버튼*/}
@@ -124,10 +124,10 @@ function SocialButtons({
         className="flex h-14 items-center justify-center gap-3 rounded-full bg-[#ffd600] text-[0.86rem] font-semibold text-[#2e2200] transition hover:brightness-[0.98] hover:shadow-[0_16px_34px_rgba(255,214,0,0.28)]"
       >
         <KakaoLogo />
-        {isKakaoSubmitting ? "카카오 이동 중..." : "카카오 로그인"}
+        {isKakaoSubmitting ? '카카오 이동 중...' : '카카오 로그인'}
       </button>
     </div>
-  );
+  )
 }
 
 export default function LoginForm({
@@ -150,8 +150,7 @@ export default function LoginForm({
       activeTab="login"
       footer={
         <p className="text-center text-[0.86rem] text-[#6f7687]">
-          아직 계정이 없으신가요?{" "}
-          {/* 회원가입 페이지로 이동 */}
+          아직 계정이 없으신가요? {/* 회원가입 페이지로 이동 */}
           <Link
             href="/signup"
             className="font-semibold text-[#31d5c8] transition hover:text-[#18bdae]"
@@ -223,7 +222,7 @@ export default function LoginForm({
           disabled={isSubmitting}
           className="mt-2 h-15 w-full rounded-full bg-[#37d2c6] text-[1rem] font-semibold text-white shadow-[0_18px_36px_rgba(55,210,198,0.34)] transition hover:-translate-y-0.5 hover:bg-[#24c4b7] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSubmitting ? "로그인 중..." : "로그인"}
+          {isSubmitting ? '로그인 중...' : '로그인'}
         </button>
 
         {errorMessage ? (
@@ -255,5 +254,5 @@ export default function LoginForm({
         </div>
       </div>
     </AuthShell>
-  );
+  )
 }

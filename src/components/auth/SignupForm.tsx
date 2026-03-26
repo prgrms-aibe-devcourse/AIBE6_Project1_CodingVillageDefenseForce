@@ -1,23 +1,23 @@
-import Link from "next/link";
+import Link from 'next/link'
 
-import AuthShell from "./AuthShell";
+import AuthShell from './AuthShell'
 
 type SignupFormProps = {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  agreedToTerms: boolean;
-  errorMessage: string;
-  successMessage: string;
-  isSubmitting: boolean;
-  onNameChange: (value: string) => void;
-  onEmailChange: (value: string) => void;
-  onPasswordChange: (value: string) => void;
-  onConfirmPasswordChange: (value: string) => void;
-  onAgreeChange: (checked: boolean) => void;
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-};
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+  agreedToTerms: boolean
+  errorMessage: string
+  successMessage: string
+  isSubmitting: boolean
+  onNameChange: (value: string) => void
+  onEmailChange: (value: string) => void
+  onPasswordChange: (value: string) => void
+  onConfirmPasswordChange: (value: string) => void
+  onAgreeChange: (checked: boolean) => void
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
+}
 
 function UserIcon() {
   return (
@@ -34,7 +34,7 @@ function UserIcon() {
       <path d="M20 21a8 8 0 00-16 0" />
       <circle cx="12" cy="8" r="4" />
     </svg>
-  );
+  )
 }
 
 function MailIcon() {
@@ -52,7 +52,7 @@ function MailIcon() {
       <rect x="3" y="5" width="18" height="14" rx="2" />
       <path d="M4 7l8 6 8-6" />
     </svg>
-  );
+  )
 }
 
 function LockIcon() {
@@ -71,7 +71,7 @@ function LockIcon() {
       <path d="M8 11V8a4 4 0 118 0v3" />
       <circle cx="12" cy="16" r="1" />
     </svg>
-  );
+  )
 }
 
 export default function SignupForm({
@@ -95,8 +95,7 @@ export default function SignupForm({
       activeTab="signup"
       footer={
         <p className="text-center text-[0.86rem] text-[#6f7687]">
-          이미 계정이 있으신가요?{" "}
-          {/* 로그인 페이지로 이동 */}
+          이미 계정이 있으신가요? {/* 로그인 페이지로 이동 */}
           <Link
             href="/login"
             className="font-semibold text-[#31d5c8] transition hover:text-[#18bdae]"
@@ -188,7 +187,9 @@ export default function SignupForm({
                 type="password"
                 placeholder="비밀번호 확인"
                 value={confirmPassword}
-                onChange={(event) => onConfirmPasswordChange(event.target.value)}
+                onChange={(event) =>
+                  onConfirmPasswordChange(event.target.value)
+                }
                 required
                 autoComplete="new-password"
                 className="w-full bg-transparent text-[0.9rem] text-[#13294b] placeholder:text-[#c6c9d2] outline-none"
@@ -214,7 +215,7 @@ export default function SignupForm({
           disabled={isSubmitting}
           className="mt-2 h-15 w-full rounded-full bg-[#37d2c6] text-[1rem] font-semibold text-white shadow-[0_18px_36px_rgba(55,210,198,0.34)] transition hover:-translate-y-0.5 hover:bg-[#24c4b7] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSubmitting ? "가입 중..." : "회원가입"}
+          {isSubmitting ? '가입 중...' : '회원가입'}
         </button>
 
         {errorMessage ? (
@@ -229,5 +230,5 @@ export default function SignupForm({
         ) : null}
       </form>
     </AuthShell>
-  );
+  )
 }

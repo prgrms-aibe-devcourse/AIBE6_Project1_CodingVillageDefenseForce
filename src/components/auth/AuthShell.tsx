@@ -1,11 +1,11 @@
-import Link from "next/link";
-import { ReactNode } from "react";
+import Link from 'next/link'
+import { ReactNode } from 'react'
 
 type AuthShellProps = {
-  activeTab: "login" | "signup";
-  children: ReactNode;
-  footer: ReactNode;
-};
+  activeTab: 'login' | 'signup'
+  children: ReactNode
+  footer: ReactNode
+}
 
 function CompassLogo() {
   return (
@@ -14,7 +14,7 @@ function CompassLogo() {
         Tripick
       </span>
     </div>
-  );
+  )
 }
 
 export default function AuthShell({
@@ -23,9 +23,9 @@ export default function AuthShell({
   footer,
 }: AuthShellProps) {
   const tabs = [
-    { href: "/login", label: "로그인", key: "login" },
-    { href: "/signup", label: "회원가입", key: "signup" },
-  ] as const;
+    { href: '/login', label: '로그인', key: 'login' },
+    { href: '/signup', label: '회원가입', key: 'signup' },
+  ] as const
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-white px-6 py-10 text-[#13294b] sm:px-10 lg:px-12 lg:py-14">
@@ -67,7 +67,7 @@ export default function AuthShell({
             {/* 로그인 / 회원가입 화면을 전환하는 상단 탭 */}
             <nav className="flex gap-6 border-b border-[#e8e1d5]">
               {tabs.map((tab) => {
-                const isActive = tab.key === activeTab;
+                const isActive = tab.key === activeTab
 
                 return (
                   <Link
@@ -75,8 +75,8 @@ export default function AuthShell({
                     href={tab.href}
                     className={`relative pb-3 text-[0.92rem] tracking-[-0.02em] transition-colors ${
                       isActive
-                        ? "font-semibold text-[#13294b]"
-                        : "font-medium text-[#7f8697] hover:text-[#13294b]"
+                        ? 'font-semibold text-[#13294b]'
+                        : 'font-medium text-[#7f8697] hover:text-[#13294b]'
                     }`}
                   >
                     {tab.label}
@@ -84,7 +84,7 @@ export default function AuthShell({
                       <span className="absolute inset-x-0 bottom-[-1px] h-[3px] rounded-full bg-[#13294b]" />
                     ) : null}
                   </Link>
-                );
+                )
               })}
             </nav>
 
@@ -96,5 +96,5 @@ export default function AuthShell({
         </section>
       </div>
     </main>
-  );
+  )
 }
