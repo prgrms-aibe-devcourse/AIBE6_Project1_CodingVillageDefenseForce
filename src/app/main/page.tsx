@@ -1,5 +1,6 @@
 'use client'
 
+import Header from '@/components/layout/Header'
 import { useState } from 'react'
 
 const THEMES = [
@@ -68,26 +69,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {/* 검색바 */}
-      <div className="flex items-center gap-3 border-b border-[#e8e6e0] bg-white px-7 py-3">
-        <div className="flex flex-1 items-center gap-2 rounded-[10px] border border-[#e8e6e0] bg-[#f7f6f3] px-3.5 py-2">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="#aaa"
-            strokeWidth="1.5"
-          >
-            <circle cx="7" cy="7" r="4.5" />
-            <path d="M10.5 10.5L14 14" />
-          </svg>
-          <input
-            type="text"
-            placeholder="여행지 또는 태그를 검색하세요"
-            className="flex-1 bg-transparent text-[13px] text-[#2c2c2a] placeholder-[#bbb] outline-none"
-          />
-        </div>
-      </div>
+      <Header placeholder="여행지 또는 태그를 검색하세요" />
 
       {/* 콘텐츠 */}
       <div className="flex-1 overflow-y-auto px-7 py-7">
