@@ -76,6 +76,9 @@ export default function SignupPage() {
 
     if (data?.user) {
       // auth uid를 public.user.uid에 저장
+      const metadata = data.user.user_metadata ?? {}
+      // 구글: picture, 카카오: avatar_url
+      const avatarUrl = metadata.picture || metadata.avatar_url || null
       const createdAt = data.user.created_at
         ? new Date(data.user.created_at).toISOString().slice(0, 10)
         : null
@@ -85,6 +88,7 @@ export default function SignupPage() {
           uid: data.user.id,
           display_name: trimmedName,
           email: normalizedEmail,
+          avatar_url: avatarUrl,
           createat: createdAt,
         },
         // uid 기준 중복 가입/SSO 재로그인 시 실패를 방지합니다.

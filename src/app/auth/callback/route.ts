@@ -23,6 +23,8 @@ export async function GET(request: Request) {
         metadata.preferred_username ||
         user.email?.split('@')[0] ||
         ''
+      // 구글: picture, 카카오: avatar_url
+      const avatarUrl = metadata.picture || metadata.avatar_url || null
       const createdAt = user.created_at
         ? new Date(user.created_at).toISOString().slice(0, 10)
         : null
@@ -33,6 +35,7 @@ export async function GET(request: Request) {
           uid: user.id,
           display_name: displayName,
           email: user.email ?? '',
+          avatar_url: avatarUrl,
           createat: createdAt,
         },
         { onConflict: 'uid' },
