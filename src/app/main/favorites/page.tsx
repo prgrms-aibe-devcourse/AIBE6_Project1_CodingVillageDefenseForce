@@ -1,0 +1,164 @@
+'use client'
+
+import Header from '@/components/layout/Header'
+import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState } from 'react'
+
+interface Place {
+  id: number
+  title: string
+  content: string
+  location: string
+  image: string
+}
+
+export default function FavoritesPage() {
+  const [places, setPlaces] = useState<Place[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase.from('place').select('*')
+      if (error) {
+        console.error('에러:', error)
+        return
+      }
+      setPlaces(data)
+      setLoading(false)
+    }
+    fetchPlaces()
+  }, [])
+
+  const remove = (id: number) => {
+    setPlaces((prev) => prev.filter((p) => p.id !== id))
+  }
+
+  return (
+    <div className="flex flex-1 flex-col overflow-hidden">
+      <Header placeholder="장소, 도시, 호텔 검색" />
+
+      <div className="flex-1 overflow-y-auto px-7 py-7">
+        {/* 헤더 */}
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <p className="mb-1 text-[11px] font-medium uppercase tracking-[2px] text-[#1D9E75]">
+              My Collection
+            </p>
+            <h1 className="text-[26px] font-medium text-[#2c2c2a]">즐겨찾기</h1>
+          </div>
+          <span className="rounded-full border border-[#e8e6e0] bg-[#f7f6f3] px-4 py-1.5 text-[13px] text-[#888]">
+            전체 {places.length}개
+          </span>
+        </div>
+
+        {/* 카드 그리드 */}
+        {loading ? (
+          <div className="flex items-center justify-center py-24 text-[#bbb] text-[14px]">
+            로딩 중...
+          </div>
+        ) : places.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 text-[#bbb] gap-3">
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              className="opacity-40"
+            >
+              <path d="M3 5.5A2.5 2.5 0 018 4a2.5 2.5 0 015 1.5c0 4-5 8-5 8s-5-4-5-8z" />
+            </svg>
+            <p className="text-[14px]">저장된 장소가 없어요</p>
+          </div>
+        ) : (
+          <div className="mb-8 grid grid-cols-3 gap-[18px]">
+            {places.map((place) => (
+              <PlaceCard key={place.id} place={place} onRemove={remove} />
+            ))}
+          </div>
+        )}
+
+        {/* AI 플래너 배너 */}
+        <div className="flex items-center justify-between gap-4 rounded-[14px] bg-[#0f1d35] px-6 py-5">
+          <div>
+            <h3 className="mb-1.5 text-[16px] font-medium text-white">
+              완벽한 여행 계획이 필요하신가요?
+            </h3>
+            <p className="text-[13px] leading-relaxed text-white/55">
+              저장한 장소들을 바탕으로 최적의 동선을 AI가 추천해 드립니다.
+              <br />
+              지금 바로 플래너를 시작해보세요.
+            </p>
+          </div>
+          <button className="flex-shrink-0 rounded-full bg-[#1D9E75] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-[#0F6E56] whitespace-nowrap">
+            플래너로 보내기
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Place Card ── */
+function PlaceCard({
+  place,
+  onRemove,
+}: {
+  place: Place
+  onRemove: (id: number) => void
+}) {
+  return (
+    <div className="group cursor-pointer overflow-hidden rounded-[14px] border border-[#e8e6e0] bg-white transition-all hover:-translate-y-0.5 hover:shadow-2xl">
+      {/* 이미지 */}
+      <div className="relative h-[180px] overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+          style={{ backgroundImage: `url('${place.image}')` }}
+        />
+        {/* 삭제 버튼 */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onRemove(place.id)
+          }}
+          className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-[#666] text-sm transition hover:bg-white hover:text-[#e24b4a]"
+        >
+          ×
+        </button>
+        {/* 지역 배지 */}
+        <span className="absolute bottom-2.5 left-2.5 rounded px-2 py-0.5 text-[10px] font-medium bg-[#E1F5EE] text-[#0F6E56] tracking-[1px]">
+          {place.location}
+        </span>
+      </div>
+
+      {/* 카드 바디 */}
+      <div className="px-4 py-3.5">
+        <div className="mb-1.5">
+          <span className="text-[15px] font-medium leading-snug text-[#2c2c2a]">
+            {place.title}
+          </span>
+        </div>
+        <p className="mb-3 line-clamp-2 text-[12px] leading-relaxed text-[#888]">
+          {place.content}
+        </p>
+        <div className="flex items-center justify-end">
+          <span className="flex items-center gap-1 text-[12px] font-medium uppercase tracking-wide text-[#1D9E75]">
+            DETAILS
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M2 6h8M7 3l3 3-3 3" />
+            </svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
