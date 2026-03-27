@@ -1,7 +1,6 @@
 'use client'
 
 import Header from '@/components/layout/Header'
-import React from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -18,7 +17,7 @@ const settingItems = [
   },
   {
     id: 'password',
-    title: '비밀번호 변경',
+    title: '비밀번호 재설정',
     desc: '주기적인 변경으로 계정을 보호하세요.',
   },
   {
@@ -77,6 +76,14 @@ function ActivityIcon({ type }: { type: string }) {
 
 export default function MyPage() {
   const router = useRouter()
+
+  // 활동 항목 클릭 시 이동 경로 처리
+  const handleActivityClick = (id: string) => {
+    if (id === 'views') {
+      router.push('/main/favorites')
+      return
+    }
+  }
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -141,6 +148,7 @@ export default function MyPage() {
                     key={item.id}
                     type="button"
                     className="flex items-center justify-between rounded-xl px-4 py-3 text-left transition hover:bg-[#f7f6f3]"
+                    onClick={() => handleActivityClick(item.id)}
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e6f7f6] text-[#12a7a0]">

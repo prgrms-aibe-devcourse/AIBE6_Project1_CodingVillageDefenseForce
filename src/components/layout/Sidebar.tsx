@@ -99,8 +99,8 @@ export default function Sidebar() {
   }
 
   useEffect(() => {
-    // 로그인된 유저의 display_name을 불러와 사이드바에 표시합니다.
-    const fetchDisplayName = async () => {
+    // 로그인된 유저 프로필 정보를 한 번에 불러옵니다.
+    const fetchProfile = async () => {
       const supabase = createClient()
       const {
         data: { user },
@@ -110,37 +110,21 @@ export default function Sidebar() {
 
       const { data, error } = await supabase
         .from('user')
-        .select('display_name')
+        .select('display_name, avatar_url')
         .eq('uid', user.id)
         .single()
 
-      if (!error && data?.display_name) {
-        setDisplayName(data.display_name)
+      if (!error) {
+        if (data?.display_name) {
+          setDisplayName(data.display_name)
+        }
+        if (data?.avatar_url) {
+          setAvatarUrl(data.avatar_url)
+        }
       }
     }
 
-    fetchDisplayName()
-
-    const fetchAvatarUrl = async () => {
-      const supabase = createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (!user) return
-
-      const { data, error } = await supabase
-        .from('user')
-        .select('avatar_url')
-        .eq('uid', user.id)
-        .single()
-
-      if (!error && data?.avatar_url) {
-        setAvatarUrl(data.avatar_url)
-      }
-    }
-
-    fetchAvatarUrl()
+    fetchProfile()
 
     const handleClickOutside = (event: MouseEvent) => {
       if (
