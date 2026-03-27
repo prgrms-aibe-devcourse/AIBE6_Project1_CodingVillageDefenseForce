@@ -2,7 +2,6 @@
 
 import Header from '@/components/layout/Header'
 import { createClient } from '@/lib/supabase/client'
-
 import { useEffect, useState } from 'react'
 
 interface Place {
@@ -22,7 +21,6 @@ interface Favorite {
 export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<Favorite[]>([])
   const [loading, setLoading] = useState(true)
-
   const supabase = createClient()
 
   useEffect(() => {

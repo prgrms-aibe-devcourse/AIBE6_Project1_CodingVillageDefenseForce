@@ -238,7 +238,7 @@ export default function AIChatModal({ place, tag }: Props) {
       {/* 플로팅 버튼 */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#37d2c6] text-white shadow-[0_8px_30px_rgba(55,210,198,0.45)] transition hover:-translate-y-0.5 hover:bg-[#24c4b7] hover:shadow-[0_12px_36px_rgba(55,210,198,0.5)]"
+        className="fixed bottom-18 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#37d2c6] text-white shadow-[0_8px_30px_rgba(55,210,198,0.45)] transition hover:-translate-y-0.5 hover:bg-[#24c4b7] hover:shadow-[0_12px_36px_rgba(55,210,198,0.5)]"
         aria-label="AI 채팅 열기"
       >
         <ChatIcon />
