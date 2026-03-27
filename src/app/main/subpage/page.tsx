@@ -1,4 +1,5 @@
 'use client'
+
 import Header from '@/components/layout/Header'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
@@ -71,11 +72,11 @@ function SubPageContent() {
       if (tagParams.length > 0) {
         const filtered =
           tag
-            ?.filter((t) => tagParams.includes(String(t.id)))
-            .map((t) => t.category) ?? []
+            ?.filter((t: Tag) => tagParams.includes(String(t.id)))
+            .map((t: Tag) => t.category) ?? []
         setSelectedTags(filtered)
       } else {
-        setSelectedTags(tag?.map((t) => t.category) ?? [])
+        setSelectedTags(tag?.map((t: Tag) => t.category) ?? [])
       }
     } catch (error) {
       console.error('Tag 로딩 중 오류가 발생하였습니다.', error)

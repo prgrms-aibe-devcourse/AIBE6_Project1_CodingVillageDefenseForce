@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import React from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import React, { useEffect, useRef, useState } from 'react'
 import AIChatModal from '../ai/AIChatModal'
+import { createClient } from '@/lib/supabase/client'
 
 const NAV_ITEMS = [
   {
@@ -81,6 +82,78 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  // 초기에는 로딩 문구를 표시하고, 이후 DB에서 불러옵니다.
+  const [displayName, setDisplayName] = useState('불러오는 중')
+  // 이미지 url 없는 경우 기본 이미지 설정
+  const [avatarUrl, setAvatarUrl] = useState(
+    'https://img.icons8.com/material-sharp/48/user.png',
+  )
+  const userMenuRef = useRef<HTMLDivElement | null>(null)
+
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/')
+  }
+
+  const myPageRe = async () => {
+    router.push('/main/mypage')
+  }
+
+  useEffect(() => {
+    // 로그인된 유저 프로필 정보를 한 번에 불러옵니다.
+    const fetchProfile = async () => {
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) return
+
+      const { data, error } = await supabase
+        .from('user')
+        .select('display_name, avatar_url')
+        .eq('uid', user.id)
+        .single()
+
+      if (!error) {
+        if (data?.display_name) {
+          setDisplayName(data.display_name)
+        }
+        if (data?.avatar_url) {
+          setAvatarUrl(data.avatar_url)
+        } else {
+          setAvatarUrl('https://img.icons8.com/material-sharp/48/user.png')
+        }
+      }
+    }
+
+    fetchProfile()
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsUserMenuOpen(false)
+      }
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsUserMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleEscape)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [])
 
   return (
     <aside className="flex w-[220px] flex-shrink-0 flex-col border-r border-[#e8e6e0] bg-white py-6">
@@ -126,14 +199,48 @@ export default function Sidebar() {
 
       <div className="flex-1" />
       {/* 유저 */}
-      <div className="mx-2 flex cursor-pointer items-center gap-2.5 rounded-lg border border-[#e8e6e0] px-3 py-2.5 hover:bg-[#f7f6f3]">
-        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#1D9E75] text-[13px] font-medium text-white">
-          A
-        </div>
-        <div>
-          <p className="text-[13px] font-medium text-[#2c2c2a]">Alex Kim</p>
-          <p className="text-[11px] text-[#aaa]">Premium Member</p>
-        </div>
+      <div className="relative mx-2" ref={userMenuRef}>
+        {isUserMenuOpen && (
+          <div className="absolute bottom-full left-0 mb-2 w-full rounded-xl border border-[#e8e6e0] bg-white py-2 shadow-[0_12px_30px_rgba(15,14,11,0.12)]">
+            <Link
+              href="/main/mypage"
+              className="block px-3 py-2 text-[13px] text-[#2c2c2a] hover:bg-[#f7f6f3]"
+              onClick={myPageRe}
+            >
+              내 정보
+            </Link>
+            <button
+              type="button"
+              className="block w-full px-3 py-2 text-left text-[13px] text-[#2c2c2a] hover:bg-[#f7f6f3]"
+              onClick={handleLogout}
+            >
+              로그아웃
+            </button>
+          </div>
+        )}
+        <button
+          type="button"
+          className="flex w-full items-center gap-2.5 rounded-lg border border-[#e8e6e0] px-3 py-2.5 hover:bg-[#f7f6f3]"
+          aria-haspopup="menu"
+          aria-expanded={isUserMenuOpen}
+          onClick={() => setIsUserMenuOpen((prev) => !prev)}
+        >
+          <img
+            src={avatarUrl}
+            alt="프로필 이미지"
+            className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
+            onError={(event) => {
+              event.currentTarget.src =
+                'https://img.icons8.com/material-sharp/48/user.png'
+            }}
+          />
+          <div className="text-left">
+            <p className="text-[13px] font-medium text-[#2c2c2a]">
+              {displayName}
+            </p>
+            <p className="text-[11px] text-[#aaa]">Tripick Member</p>
+          </div>
+        </button>
       </div>
     </aside>
   )
