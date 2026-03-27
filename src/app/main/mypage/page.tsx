@@ -3,6 +3,7 @@
 import Header from '@/components/layout/Header'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 const activityItems = [
   { id: 'views', label: '내 위시리스트', icon: 'heart' },
@@ -76,6 +77,12 @@ function ActivityIcon({ type }: { type: string }) {
 
 export default function MyPage() {
   const router = useRouter()
+  const [displayName, setDisplayName] = useState('불러오는 중')
+  // 이미지 url 없는 경우 기본 이미지 설정
+  const [avatarUrl, setAvatarUrl] = useState(
+    'https://img.icons8.com/material-sharp/48/user.png',
+  )
+  const [email, setEmail] = useState('loading. .')
 
   // 활동 항목 클릭 시 이동 경로 처리
   const handleActivityClick = (id: string) => {
@@ -84,6 +91,39 @@ export default function MyPage() {
       return
     }
   }
+
+  useEffect(() => {
+    // 로그인된 유저 프로필 정보를 한 번에 불러옵니다.
+    const fetchProfile = async () => {
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) return
+
+      const { data, error } = await supabase
+        .from('user')
+        .select('email, display_name, avatar_url')
+        .eq('uid', user.id)
+        .single()
+
+      if (!error) {
+        if (data?.display_name) {
+          setDisplayName(data.display_name)
+        }
+        if (data?.avatar_url) {
+          setAvatarUrl(data.avatar_url)
+        }
+        if (data?.email) {
+          setEmail(data.email)
+        }
+      }
+    }
+
+    fetchProfile()
+  }, [])
+
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -103,8 +143,12 @@ export default function MyPage() {
             <div className="flex flex-wrap items-center gap-5">
               <div className="relative">
                 <div className="flex h-[88px] w-[88px] items-center justify-center rounded-full border-[3px] border-[#2fb9b1]">
-                  <div className="flex h-[76px] w-[76px] items-center justify-center rounded-full bg-[#f0f0f0] text-[26px] font-semibold text-[#2c2c2a]">
-                    A
+                  <div className="flex h-[76px] w-[76px] items-center justify-center overflow-hidden rounded-full bg-[#f0f0f0] text-[26px] font-semibold text-[#2c2c2a]">
+                    <img
+                      src={avatarUrl}
+                      alt="프로필 이미지"
+                      className="h-full w-full object-cover"
+                    />
                   </div>
                 </div>
                 <div className="absolute bottom-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#0f1c3f] text-white">
@@ -114,24 +158,18 @@ export default function MyPage() {
                 </div>
               </div>
               <div className="flex-1">
-                <div className="text-[22px] font-semibold text-[#18202a]" style={{ fontFamily: 'Georgia, serif' }}>
-                  Alex Rivera
+                <div className="text-[22px] font-semibold text-[#18202a]">
+                  {displayName}
                 </div>
-                <div className="mt-1 text-[13px] text-[#8a8a87]">alex.rivera@curatedvoyages.com</div>
+                <div className="mt-1 text-[13px] text-[#8a8a87]">{email}</div>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-[#e6f7f6] px-3 py-1 text-[11px] font-medium text-[#2fb9b1]">
-                    Elite Member
+                    Tripick User
                   </span>
                   <span className="rounded-full bg-[#e7f4ff] px-3 py-1 text-[11px] font-medium text-[#2a7bdc]">
-                    Seoul, KR
+                    Korea
                   </span>
                 </div>
-              </div>
-              <div className="hidden h-[88px] w-[88px] items-center justify-center rounded-full bg-[#f1f1f1] lg:flex">
-                <svg viewBox="0 0 64 64" width="40" height="40" fill="none" stroke="#c6c5c2" strokeWidth="3">
-                  <circle cx="32" cy="32" r="20" />
-                  <path d="M32 12v10M32 42v10M12 32h10M42 32h10" />
-                </svg>
               </div>
             </div>
           </div>
