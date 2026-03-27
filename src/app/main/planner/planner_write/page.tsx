@@ -1,6 +1,6 @@
 'use client'
 
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -12,6 +12,7 @@ interface Place {
 }
 
 function PlannerWritePage() {
+  const supabase = createClient()
   const router = useRouter()
   // 기본 정보
   const [title, setTitle] = useState('')
