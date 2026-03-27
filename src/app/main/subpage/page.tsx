@@ -1,4 +1,5 @@
 'use client'
+import Header from '@/components/layout/Header'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -45,6 +46,7 @@ function SubPageContent() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [location, setLocation] = useState<Location[]>([])
   const [selectedRegion, setSelectedRegion] = useState('전체')
+  const [showFilter, setShowFilter] = useState(false) // 필터 패널 토글
 
   const sortOptions = ['거리순', '평점순', '리뷰 많은 순']
   const [selectedSort, setSelectedSort] = useState('거리순')
@@ -66,7 +68,6 @@ function SubPageContent() {
     try {
       const { data: tag } = await supabase.from('tag').select('*')
       setTags(tag ?? [])
-      // 메인에서 넘어온 태그가 있으면 그걸로 초기화, 없으면 전체
       if (tagParams.length > 0) {
         const filtered =
           tag
@@ -97,19 +98,20 @@ function SubPageContent() {
     }
   }
 
-  const tagDelete = (id: number) => {
-    const del = tags.find((e) => e.id === id)
-    setTags((prev) => prev.filter((e) => e.id !== id))
-    setSelectedTags((prev) => prev.filter((t) => t !== del?.category))
+  // 태그 선택/해제
+  const toggleTag = (category: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(category)
+        ? prev.filter((t) => t !== category)
+        : [...prev, category],
+    )
   }
 
   const toggleFavorite = async (placeId: number) => {
     if (!currentUserId) return
-
     const isLiked = object
       .find((obj) => obj.id === placeId)
       ?.favorite.some((l) => l.user_id === currentUserId)
-
     if (isLiked) {
       await supabase
         .from('favorite')
@@ -154,57 +156,101 @@ function SubPageContent() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#fafaf9] px-8 py-8">
-      {/* 검색 바 */}
-      <div>
-        <input
-          className="h-12 w-full max-w-md rounded-2xl text-gray-700 bg-[#f5f5f4] px-4 outline-none m-[1rem]"
-          type="text"
-          placeholder="어디로 떠나고 싶으신가요?"
-        />
-      </div>
+    <div className="flex flex-1 flex-col overflow-auto">
+      <Header placeholder="어디로 떠나고 싶으신가요?" />
 
-      {/* Header */}
-      <div className="flex items-center justify-between m-[1rem]">
-        <div className="flex items-center gap-3 px-[2rem]">
-          <button className="text-[#292524] text-sm">
-            <Link href="/main">⬅️</Link>
-          </button>
-          <h2 className="text-3xl text-[#292524] py-[1rem]">검색 결과</h2>
+      {/* 상단 헤더 */}
+      <div className="flex items-center justify-between px-7 py-4 border-b border-[#e8e6e0] bg-white">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/main"
+            className="flex items-center justify-center w-9 h-9 rounded-full bg-[#f7f6f3] border border-[#e8e6e0] hover:bg-[#e8e6e0] transition"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 18 18"
+              fill="none"
+              stroke="#2c2c2a"
+              strokeWidth="2"
+            >
+              <path d="M11 3L5 9l6 6" />
+            </svg>
+          </Link>
+          <h2 className="text-[20px] font-medium text-[#2c2c2a]">검색 결과</h2>
         </div>
-        <button className="rounded-xl text-[#292524] bg-[#f5f5f4] px-4 py-2 text-sm">
+        {/* 필터 버튼 */}
+        <button
+          onClick={() => setShowFilter((prev) => !prev)}
+          className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-[13px] font-medium transition
+            ${showFilter ? 'bg-[#1D9E75] text-white' : 'bg-[#f5f5f4] text-[#292524] hover:bg-[#e8e6e0]'}`}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          >
+            <path d="M1 3h12M3 7h8M5 11h4" />
+          </svg>
           필터
         </button>
       </div>
 
-      {/* 태그 리스트 */}
-      <div>
-        <ul className="flex flex-wrap gap-3 mx-[1rem] my-[2rem]">
-          {tags.map((tag) => (
-            <li
+      {/* 선택된 태그 칩 */}
+      <div className="flex flex-wrap items-center gap-2 px-7 py-3 border-b border-[#e8e6e0] bg-white">
+        {selectedTags.map((category) => {
+          const tag = tags.find((t) => t.category === category)
+          if (!tag) return null
+          return (
+            <span
               key={tag.id}
-              className={`rounded-full px-4 py-2 text-sm cursor-pointer ${
-                selectedTags.includes(tag.category)
-                  ? 'bg-[#a7f3d0] text-[#0f766e]'
-                  : 'bg-[#f5f5f4] text-[#888]'
-              }`}
+              onClick={() => toggleTag(category)}
+              className="flex cursor-pointer items-center gap-1 rounded-full bg-[#1D9E75] px-3 py-1 text-[12px] text-white hover:bg-[#0F6E56] transition"
             >
-              #{tag.category}
-              <button onClick={() => tagDelete(tag.id)}> [x]</button>
-            </li>
-          ))}
-        </ul>
+              #{category}
+              <span className="opacity-80">×</span>
+            </span>
+          )
+        })}
       </div>
 
-      {/* 필터 */}
-      <div className="rounded-3xl bg-[#f4f3f0] px-6 py-5 mx-[1rem] my-[3rem]">
-        <div className="flex flex-col gap-5">
-          <div className="flex items-center gap-6">
-            <span className="min-w-[40px] text-sm text-gray-500">지역</span>
-            <div className="flex flex-wrap gap-3">
+      {/* 필터 패널 */}
+      {showFilter && (
+        <div className="bg-white border-b border-[#e8e6e0] px-7 py-5">
+          {/* 태그 선택 */}
+          <div className="mb-4">
+            <p className="text-[12px] font-medium text-[#888] mb-2 uppercase tracking-wider">
+              테마
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <button
+                  key={tag.id}
+                  onClick={() => toggleTag(tag.category)}
+                  className={`rounded-full px-3 py-1.5 text-[13px] transition ${
+                    selectedTags.includes(tag.category)
+                      ? 'bg-[#1D9E75] text-white'
+                      : 'bg-[#f5f5f4] text-[#5f5e5a] hover:bg-[#e8e6e0]'
+                  }`}
+                >
+                  #{tag.category}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 지역 필터 */}
+          <div className="mb-4">
+            <p className="text-[12px] font-medium text-[#888] mb-2 uppercase tracking-wider">
+              지역
+            </p>
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setSelectedRegion('전체')}
-                className={`rounded-lg px-3 py-1.5 text-sm ${selectedRegion === '전체' ? 'bg-sky-300 text-white' : 'text-[#44403c]'}`}
+                className={`rounded-lg px-3 py-1.5 text-[13px] transition ${selectedRegion === '전체' ? 'bg-[#1D9E75] text-white' : 'bg-[#f5f5f4] text-[#44403c] hover:bg-[#e8e6e0]'}`}
               >
                 전체
               </button>
@@ -212,21 +258,25 @@ function SubPageContent() {
                 <button
                   key={loca.id}
                   onClick={() => setSelectedRegion(loca.title)}
-                  className={`rounded-lg px-3 py-1.5 text-sm ${selectedRegion === loca.title ? 'bg-sky-300 text-white' : 'text-[#44403c]'}`}
+                  className={`rounded-lg px-3 py-1.5 text-[13px] transition ${selectedRegion === loca.title ? 'bg-[#1D9E75] text-white' : 'bg-[#f5f5f4] text-[#44403c] hover:bg-[#e8e6e0]'}`}
                 >
                   {loca.title}
                 </button>
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-6">
-            <span className="min-w-[40px] text-sm text-gray-500">정렬</span>
-            <div className="flex flex-wrap gap-3">
+
+          {/* 정렬 */}
+          <div>
+            <p className="text-[12px] font-medium text-[#888] mb-2 uppercase tracking-wider">
+              정렬
+            </p>
+            <div className="flex flex-wrap gap-2">
               {sortOptions.map((option) => (
                 <button
                   key={option}
                   onClick={() => setSelectedSort(option)}
-                  className={`rounded-lg px-3 py-1.5 text-sm ${selectedSort === option ? 'font-semibold text-sky-600' : 'text-gray-400'}`}
+                  className={`rounded-lg px-3 py-1.5 text-[13px] transition ${selectedSort === option ? 'font-semibold text-[#1D9E75]' : 'text-[#888] hover:text-[#2c2c2a]'}`}
                 >
                   {option}
                 </button>
@@ -234,11 +284,17 @@ function SubPageContent() {
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 장소 리스트 */}
-      <div>
-        <ul className="flex flex-col gap-5 m-[1rem]">
+      <div className="flex-1 px-7 py-5">
+        <p className="text-[13px] text-[#888] mb-4">
+          <strong className="text-[#2c2c2a] font-medium">
+            {filtedObject.length}개
+          </strong>
+          의 장소
+        </p>
+        <ul className="flex flex-col gap-4">
           {filtedObject.length === 0 ? (
             <li className="text-center text-gray-400 py-10">
               해당하는 장소가 없어요
@@ -253,42 +309,66 @@ function SubPageContent() {
               return (
                 <li
                   key={obj.id}
-                  className="flex items-center justify-between rounded-3xl bg-white px-6 py-5"
+                  className="flex items-center justify-between rounded-2xl bg-white border border-[#e8e6e0] px-5 py-4 hover:shadow-md transition"
                 >
-                  <div className="flex items-center gap-5">
-                    <div className="h-28 w-28 rounded-2xl bg-gray-300 overflow-hidden flex-shrink-0">
+                  <div className="flex items-center gap-4">
+                    <div className="h-24 w-24 rounded-xl bg-gray-300 overflow-hidden flex-shrink-0">
                       <img
                         src={obj.image}
                         alt={obj.title}
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-2 text-xs text-orange-400">
-                        <span className="rounded bg-gray-100 px-2 py-1 text-gray-600">
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="rounded-md bg-[#f5f5f4] px-2 py-0.5 text-[#5f5e5a]">
                           {obj.location.title}
                         </span>
                         {obj.place_tag.map((e) => (
-                          <span key={e.tag.id}>#{e.tag.category}</span>
+                          <span key={e.tag.id} className="text-[#1D9E75]">
+                            #{e.tag.category}
+                          </span>
                         ))}
                       </div>
-                      <h3 className="text-2xl font-semibold text-[#292524]">
+                      <h3 className="text-[17px] font-medium text-[#292524]">
                         {obj.title}
                       </h3>
-                      <p className="text-sm text-gray-500">{obj.content}</p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span>⭐{avg.toFixed(1)}</span>
+                      <p className="text-[13px] text-gray-500 line-clamp-1">
+                        {obj.content}
+                      </p>
+                      <div className="flex items-center gap-3 text-[13px] text-gray-500">
+                        <span>⭐ {avg.toFixed(1)}</span>
                         <span>리뷰 {obj.review.length}개</span>
                       </div>
                     </div>
                   </div>
                   <button
-                    className="text-xl"
+                    className="ml-4 flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full transition-all hover:scale-110"
                     onClick={() => toggleFavorite(obj.id)}
                   >
-                    {obj.favorite.some((l) => l.user_id === currentUserId)
-                      ? '❤️'
-                      : '🤍'}
+                    {obj.favorite.some((l) => l.user_id === currentUserId) ? (
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="#1D9E75"
+                        stroke="#1D9E75"
+                        strokeWidth="1.5"
+                      >
+                        <path d="M12 21C12 21 3 14 3 8a5 5 0 0110 0 5 5 0 0110 0c0 6-9 13-9 13z" />
+                      </svg>
+                    ) : (
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#1D9E75"
+                        strokeWidth="1.8"
+                      >
+                        <path d="M12 21C12 21 3 14 3 8a5 5 0 0110 0 5 5 0 0110 0c0 6-9 13-9 13z" />
+                      </svg>
+                    )}
                   </button>
                 </li>
               )
