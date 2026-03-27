@@ -89,6 +89,9 @@ export default function MyPage() {
   const [nicknameInput, setNicknameInput] = useState('')
   const [isSavingNickname, setIsSavingNickname] = useState(false)
   const [nicknameError, setNicknameError] = useState('')
+  // 이메일 변경 모달 상태 (UI만)
+  const [isEmailOpen, setIsEmailOpen] = useState(false)
+  const [emailInput, setEmailInput] = useState('')
 
   // 활동 항목 클릭 시 이동 경로 처리
   const handleActivityClick = (id: string) => {
@@ -169,6 +172,13 @@ export default function MyPage() {
       setIsNicknameOpen(true)
       return
     }
+
+    if (id === 'profile') {
+      // 이메일 변경 모달 열기 (UI만)
+      setEmailInput(email === 'loading. .' ? '' : email)
+      setIsEmailOpen(true)
+      return
+    }
     return
   }
 
@@ -213,6 +223,11 @@ export default function MyPage() {
     setDisplayName(nextName)
     setIsSavingNickname(false)
     setIsNicknameOpen(false)
+  }
+
+  // 이메일 저장 처리 (UI만)
+  const handleEmailSave = () => {
+    setIsEmailOpen(false)
   }
 
   return (
@@ -396,7 +411,43 @@ export default function MyPage() {
         </div>
       )}
 
+      {/* 이메일 변경 모달 (UI만) */}
+      {isEmailOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
+          <div className="w-full max-w-[420px] rounded-2xl bg-white p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
+            <div className="text-[16px] font-semibold text-[#2c2c2a]">
+              이메일 변경
+            </div>
+            <p className="mt-2 text-[12px] text-[#8a8a87]">
+              변경하실 이메일을 입력해주세요.
+            </p>
+            <input
+              type="email"
+              value={emailInput}
+              onChange={(event) => setEmailInput(event.target.value)}
+              className="mt-4 w-full rounded-xl border border-[#e8e6e0] bg-[#f7f6f3] px-3 py-2 text-[13px] text-[#2c2c2a] outline-none"
+              placeholder="새 이메일"
+            />
+            <div className="mt-5 flex gap-2">
+              <button
+                type="button"
+                className="flex-1 rounded-xl border border-[#e8e6e0] px-3 py-2 text-[13px] text-[#2c2c2a]"
+                onClick={() => setIsEmailOpen(false)}
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                className="flex-1 rounded-xl bg-[#1D9E75] px-3 py-2 text-[13px] font-semibold text-white"
+                onClick={handleEmailSave}
+              >
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
-
