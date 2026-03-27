@@ -1,4 +1,6 @@
+import DetailGetReview from '@/components/detail_review/Detail_GetReview'
 import DetailReview from '@/components/detail_review/Detail_Review'
+import { getDescription, getImages } from '@/lib/api/detailSearch'
 import KakaoMap from './KakaoMap'
 
 export default async function DetailPage() {
@@ -6,13 +8,13 @@ export default async function DetailPage() {
   const searchTerm = '서울 한강공원' // test 검색어
 
   // 검색 정보 가져오기
-  //const description = await getDescription(searchTerm)
-  //const images = await getImages(searchTerm)
+  const description = await getDescription(searchTerm)
+  const images = await getImages(searchTerm)
 
   // 첫 장을 메인 이미지로 표현
-  //const heroImage = images.length > 0 ? images[0].url : 'images/default.jpg'
+  const heroImage = images.length > 0 ? images[0].url : 'images/default.jpg'
   // 나머지는 갤러리 이미지로 표현
-  //const galleryImages = images.slice(1, 4)
+  const galleryImages = images.slice(1, 4)
 
   // 화면에 검색 결과 표시
   return (
@@ -21,7 +23,7 @@ export default async function DetailPage() {
       <div className="relative h-[450px] w-full">
         {/* 넓은 배경 이미지 */}
         <img
-          // src={heroImage}
+          src={heroImage}
           alt={`${searchTerm} 배경`}
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -104,7 +106,7 @@ export default async function DetailPage() {
               {searchTerm}
             </h2>
             <p className="text-[#555] text-base leading-relaxed">
-              {/* {description} */}
+              {description}
             </p>
           </section>
 
@@ -112,38 +114,11 @@ export default async function DetailPage() {
           <section>
             <div className="flex justify-between items-end mb-6">
               <h2 className="text-2xl font-bold text-[#222]">방문자 리뷰</h2>
-              <DetailReview />
+              <DetailReview searchTerm={searchTerm} placeId={1} userId={2} />
             </div>
             <div className="flex flex-col gap-4">
               {/* 리뷰 플레이스홀더 1 */}
-              <div className="bg-[#F4F6F6] rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  <div>
-                    <div className="text-sm font-bold text-[#333]">김지은</div>
-                    <div className="text-[#E74C3C] text-xs">★★★★★</div>
-                  </div>
-                  <div className="ml-auto text-xs text-[#999]">2 days ago</div>
-                </div>
-                <p className="text-[#666] text-sm leading-relaxed">
-                  리뷰 데이터 연동 예정...
-                </p>
-              </div>
-
-              {/* 리뷰 플레이스홀더 2 */}
-              <div className="bg-[#F4F6F6] rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  <div>
-                    <div className="text-sm font-bold text-[#333]">김민준</div>
-                    <div className="text-[#E74C3C] text-xs">★★★★☆</div>
-                  </div>
-                  <div className="ml-auto text-xs text-[#999]">1 week ago</div>
-                </div>
-                <p className="text-[#666] text-sm leading-relaxed">
-                  리뷰 데이터 연동 예정...
-                </p>
-              </div>
+              <DetailGetReview />
             </div>
           </section>
         </div>
@@ -161,11 +136,7 @@ export default async function DetailPage() {
               관련 이미지
             </h3>
 
-            <div className="h-[200px] flex items-center justify-center bg-gray-100 rounded-[20px] text-[#999]">
-              이미지가 없습니다.
-            </div>
-
-            {/* {galleryImages.length > 0 ? (
+            {galleryImages.length > 0 ? (
               <div className="grid grid-cols-2 grid-rows-2 gap-3 h-[320px]">
                 {galleryImages[0] && (
                   <img
@@ -190,8 +161,10 @@ export default async function DetailPage() {
                 )}
               </div>
             ) : (
-             
-            )} */}
+              <div className="h-[200px] flex items-center justify-center bg-gray-100 rounded-[20px] text-[#999]">
+                이미지가 없습니다.
+              </div>
+            )}
           </section>
         </div>
       </div>
