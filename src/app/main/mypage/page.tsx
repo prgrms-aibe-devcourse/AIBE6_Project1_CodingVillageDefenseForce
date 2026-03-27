@@ -76,6 +76,14 @@ function ActivityIcon({ type }: { type: string }) {
 }
 
 export default function MyPage() {
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/')
+  }
+
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {/* 공용 헤더 사용, 검색바 숨김 */}
@@ -202,6 +210,7 @@ export default function MyPage() {
             <button
               type="button"
               className="mt-4 flex items-center gap-2 text-[12px] font-semibold text-[#1fb7ad]"
+              onClick={handleLogout}
             >
               <span>로그아웃</span>
             </button>
