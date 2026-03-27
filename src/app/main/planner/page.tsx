@@ -1,89 +1,55 @@
 'use client'
 
 import Header from '@/components/layout/Header'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 interface Place {
-  num: number
-  name: string
-  desc: string
-  memo: string
-  bg: string
-}
-
-interface Plan {
   id: number
   title: string
-  date: string
-  tags: string[]
-  count: string
-  places: Place[]
+  content: string
+  location: string
+  image: string // url 정보
+  location_id: number // 지역 id
 }
 
-const PLANS: Plan[] = [
-  {
-    id: 0,
-    title: '제주도 감성 스테이',
-    date: '3/26 - 3/31',
-    tags: ['힐링', '카페투어'],
-    count: '장소 3곳',
-    places: [
-      {
-        num: 1,
-        name: '앤트러사이트 한림',
-        desc: '폐공장을 개조한 유니크한 카페',
-        memo: '',
-        bg: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=200&q=60',
-      },
-      {
-        num: 2,
-        name: '협재 해수욕장',
-        desc: '에메랄드빛 바다',
-        memo: '노을 보기 좋은 시간대 체크...',
-        bg: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&q=60',
-      },
-      {
-        num: 3,
-        name: '스테이 어도어',
-        desc: '감성 숙소',
-        memo: '숙소 예약 완료',
-        bg: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200&q=60',
-      },
-    ],
-  },
-  {
-    id: 1,
-    title: '교토 목조 가옥 여행',
-    date: '4/12 - 4/15',
-    tags: ['전통', '미식'],
-    count: '장소 8곳',
-    places: [
-      {
-        num: 1,
-        name: '기요미즈데라',
-        desc: '교토 대표 사찰',
-        memo: '',
-        bg: 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=200&q=60',
-      },
-      {
-        num: 2,
-        name: '아라시야마 대나무숲',
-        desc: '교토 필수 코스',
-        memo: '오전 일찍 방문 추천',
-        bg: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=200&q=60',
-      },
-    ],
-  },
-]
+interface Place_Planner {
+  id: number
+  place: Place
+}
+
+interface Planner {
+  id: number
+  user_id: number
+  title: string
+  content: string
+  start_date: string
+  end_date: string
+  place_planners: Place_Planner[]
+}
 
 export default function PlannerPage() {
-  const [planners, setPlanners] = useState<Plan[]>([])
+  const [planners, setPlanners] = useState<Planner[]>([])
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null)
 
+  const fetchPlanner = async () => {
+    const { data: Planner, error } = await supabase
+      .from('planner')
+      .select(
+        `
+      *, place_planners:place_planner(id, place(id, title, content, location, image, location_id))`,
+      )
+      .order('id', { ascending: false })
+    if (error) {
+      console.error('플래너 에러:', error)
+      return
+    }
+    setPlanners(Planner ?? [])
+  }
+
   useEffect(() => {
-    setPlanners(PLANS)
-    if (PLANS.length > 0) setSelectedPlanId(PLANS[0].id)
+    fetchPlanner()
   }, [])
 
   const selectedPlan = planners.find((plan) => plan.id === selectedPlanId)
@@ -118,7 +84,7 @@ export default function PlannerPage() {
                 <p className="mb-2 px-1 text-[12px] font-medium text-[#888]">
                   진행 중인 플랜
                 </p>
-                {PLANS.map((plan) => (
+                {planners.map((plan) => (
                   <div
                     key={plan.id}
                     onClick={() => setSelectedPlanId(plan.id)}
@@ -134,20 +100,12 @@ export default function PlannerPage() {
                         {plan.title}
                       </span>
                       <span className="rounded-full bg-[#1D9E75] px-2 py-0.5 text-[11px] text-white">
-                        {plan.count}
+                        장소 {plan.place_planners?.length || 0}곳
                       </span>
                     </div>
-                    <p className="mb-2 text-[12px] text-[#888]">{plan.date}</p>
-                    <div className="mb-2.5 flex flex-wrap gap-1.5">
-                      {plan.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-full bg-[#f7f6f3] px-2 py-0.5 text-[11px] text-[#5f5e5a]"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
+                    <p className="mb-2 text-[12px] text-[#888]">
+                      {plan.start_date} ~ {plan.end_date}
+                    </p>
                     <span className="flex items-center gap-1 text-[12px] font-medium text-[#1D9E75]">
                       플랜 상세보기 →
                     </span>
@@ -180,7 +138,7 @@ export default function PlannerPage() {
         {/* ── 오른쪽: 플랜 상세 ── */}
         <div className="flex flex-1 flex-col overflow-hidden bg-[#f7f6f3]">
           {/* 상세 헤더 */}
-          {!selectedPlan ? (
+          {!selectedPlanId ? (
             <div className="flex flex-1 flex-col items-center justify-center text-center">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#e8e6e0]">
                 🗺️
@@ -205,7 +163,7 @@ export default function PlannerPage() {
                     Detail View
                   </p>
                   <h2 className="text-[18px] font-medium text-[#2c2c2a]">
-                    {selectedPlan.title}
+                    {selectedPlan?.title}
                   </h2>
                 </div>
                 <div className="flex gap-2">
@@ -245,47 +203,51 @@ export default function PlannerPage() {
               <div className="flex-1 overflow-y-auto px-6 py-5">
                 {/* 장소 목록 */}
                 <div className="mb-3">
-                  {selectedPlan.places.map((place) => (
-                    <div
-                      key={place.num}
-                      className="mb-2.5 flex items-center gap-3.5 rounded-[12px] border border-[#e8e6e0] bg-white px-4 py-3.5 transition hover:shadow-md"
-                    >
-                      {/* 번호 */}
-                      <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#1D9E75] text-[13px] font-medium text-white">
-                        {place.num}
-                      </div>
-                      {/* 썸네일 */}
+                  {selectedPlan?.place_planners?.map((place_planner) => {
+                    const machedPlace = place_planner.place
+                    if (!machedPlace) return null
+                    return (
                       <div
-                        className="h-[54px] w-[54px] flex-shrink-0 rounded-lg bg-cover bg-center"
-                        style={{ backgroundImage: `url('${place.bg}')` }}
-                      />
-                      {/* 정보 */}
-                      <div className="flex-1">
-                        <p className="text-[14px] font-medium text-[#2c2c2a]">
-                          {place.name}
-                        </p>
-                        <p className="text-[12px] text-[#888]">{place.desc}</p>
-                        {place.memo && (
-                          <p className="mt-0.5 text-[11px] italic text-[#aaa]">
-                            {place.memo}
+                        key={place_planner.id}
+                        className="mb-2.5 flex items-center gap-3.5 rounded-[12px] border border-[#e8e6e0] bg-white px-4 py-3.5 transition hover:shadow-md"
+                      >
+                        {/* 썸네일 */}
+                        <div
+                          className="h-[54px] w-[54px] flex-shrink-0 rounded-lg bg-cover bg-center"
+                          style={{
+                            backgroundImage: `url('${machedPlace.image}')`,
+                          }}
+                        />
+                        {/* 정보 */}
+                        <div className="flex-1">
+                          <p className="text-[14px] font-medium text-[#2c2c2a]">
+                            {machedPlace.title}
                           </p>
-                        )}
+                          <p className="text-[12px] text-[#888]">
+                            {machedPlace.location}
+                          </p>
+                          {machedPlace.content && (
+                            <p className="mt-0.5 text-[11px] italic text-[#aaa]">
+                              {machedPlace.content}
+                            </p>
+                          )}
+                        </div>
+                        {/* 드래그 핸들 */}
+                        <div className="cursor-grab text-[#ccc] hover:text-[#888] p-1">
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                          >
+                            <path d="M4 5h8M4 8h8M4 11h8" />
+                          </svg>
+                        </div>
                       </div>
-                      {/* 드래그 핸들 */}
-                      <div className="cursor-grab text-[#ccc] hover:text-[#888] p-1">
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                        >
-                          <path d="M4 5h8M4 8h8M4 11h8" />
-                        </svg>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
 
                 {/* 장소 추가 버튼 */}
