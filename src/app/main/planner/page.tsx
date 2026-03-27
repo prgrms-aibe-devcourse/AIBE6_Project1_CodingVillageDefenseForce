@@ -1,7 +1,7 @@
 'use client'
 
 import Header from '@/components/layout/Header'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -33,6 +33,7 @@ interface Planner {
 }
 
 export default function PlannerPage() {
+  const supabase = createClient()
   const router = useRouter()
   const [planners, setPlanners] = useState<Planner[]>([])
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null)
@@ -55,6 +56,24 @@ export default function PlannerPage() {
   useEffect(() => {
     fetchPlanner()
   }, [])
+
+  const handleDelete = async () => {
+    if (!selectedPlanId) return
+
+    if (!window.confirm('정말 삭제하시겠습니까?')) return
+
+    // place_planer는 cascade로 planner가 삭제되면 따라서 삭제되도록 설정
+    const { error: plannerError } = await supabase
+      .from('planner')
+      .delete()
+      .eq('id', selectedPlanId)
+    if (plannerError) {
+      console.error('플래너 삭제 에러:', plannerError)
+      return
+    }
+    setSelectedPlanId(null)
+    fetchPlanner()
+  }
 
   const selectedPlan = planners.find((plan) => plan.id === selectedPlanId)
 
@@ -192,20 +211,21 @@ export default function PlannerPage() {
                       <path d="M10.5 2.5l2 2-7 7H3.5v-2l7-7z" />
                     </svg>
                   </button>
-                  {/* 공유 */}
-                  <button className="flex h-[34px] w-[34px] items-center justify-center rounded-lg border border-[#e8e6e0] bg-white text-[#888] transition hover:bg-[#f7f6f3] hover:text-[#2c2c2a]">
+                  {/* 삭제 (휴지통 아이콘) */}
+                  <button
+                    onClick={handleDelete}
+                    className="flex h-[34px] w-[34px] items-center justify-center rounded-lg border border-[#e8e6e0] bg-white text-red-400/80 transition hover:bg-red-50 hover:text-red-600 hover:border-red-200 shadow-sm"
+                  >
+                    {/* 휴지통 모양 SVG (점 3개 아이콘 대신) */}
                     <svg
-                      width="15"
-                      height="15"
-                      viewBox="0 0 15 15"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="1.5"
                     >
-                      <circle cx="11" cy="3" r="1.5" />
-                      <circle cx="11" cy="12" r="1.5" />
-                      <circle cx="3" cy="7.5" r="1.5" />
-                      <path d="M9.5 3.7L4.5 6.8M9.5 11.3L4.5 8.2" />
+                      <path d="M2.5 4h11M6.5 4V2.5a1 1 0 011-1h1a1 1 0 011 1V4m3 0v10a1.5 1.5 0 01-1.5 1.5h-8A1.5 1.5 0 012.5 14V4h11zM5.5 7v5M10.5 7v5" />
                     </svg>
                   </button>
                 </div>
