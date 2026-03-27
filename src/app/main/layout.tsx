@@ -10,9 +10,7 @@ export default function MainLayout({
     <MainAuthGate>
       <div className="flex h-screen overflow-hidden bg-[#f7f6f3]">
         <Sidebar />
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {children}
-        </div>
+        <div className="flex flex-1 flex-col overflow-auto">{children}</div>
       </div>
     </MainAuthGate>
   )

@@ -2,7 +2,8 @@
 
 import TagGrid from '@/components/home/TagGrid'
 import Header from '@/components/layout/Header'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 // emoji 매핑 (category 이름으로 매핑)
@@ -39,7 +40,6 @@ export default function HomePage() {
 
   useEffect(() => {
     const fetchTags = async () => {
-      const supabase = createClient()
       const { data, error } = await supabase.from('tag').select('*')
       if (error) {
         console.error('태그 에러:', error)
@@ -66,6 +66,8 @@ export default function HomePage() {
       return next
     })
   }
+
+  const router = useRouter()
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -125,6 +127,10 @@ export default function HomePage() {
         </span>
         <button
           disabled={selected.size === 0}
+          onClick={() => {
+            const tags = [...selected].join(',')
+            router.push(`/main/subpage?tags=${tags}` as any)
+          }}
           className="flex items-center gap-1.5 rounded-full bg-[#1D9E75] px-7 py-3 text-[14px] font-medium text-white transition-all hover:bg-[#0F6E56] hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:bg-[#ccc] disabled:translate-y-0"
         >
           추천받기
