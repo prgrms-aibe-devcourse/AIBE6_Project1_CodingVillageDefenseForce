@@ -98,6 +98,10 @@ export default function Sidebar() {
     router.push('/')
   }
 
+  const myPageRe = async () => {
+    router.push('/main/mypage')
+  }
+
   useEffect(() => {
     // 로그인된 유저 프로필 정보를 한 번에 불러옵니다.
     const fetchProfile = async () => {
@@ -199,7 +203,7 @@ export default function Sidebar() {
             <Link
               href="/main/mypage"
               className="block px-3 py-2 text-[13px] text-[#2c2c2a] hover:bg-[#f7f6f3]"
-              onClick={() => setIsUserMenuOpen(false)}
+              onClick={myPageRe}
             >
               내 정보
             </Link>

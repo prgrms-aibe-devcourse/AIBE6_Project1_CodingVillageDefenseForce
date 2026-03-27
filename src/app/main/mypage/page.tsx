@@ -131,6 +131,28 @@ export default function MyPage() {
     router.push('/')
   }
 
+  const handleSettingClick = async (id: string) => {
+    if (id !== 'password') return
+
+    // 이메일이 세션에 있다면 그걸 사용
+    if (!email) {
+      alert('이메일 정보를 불러오지 못했습니다.')
+      return
+    }
+  
+    const supabase = createClient()
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset`,
+    })
+  
+    if (error) {
+      alert('재설정 메일 전송 실패: ' + error.message)
+      return
+    }
+  
+    alert('비밀번호 재설정 메일을 보냈어요.')
+  }
+
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {/* 공용 헤더 사용, 검색바 숨김 */}
@@ -150,11 +172,6 @@ export default function MyPage() {
                       className="h-full w-full object-cover"
                     />
                   </div>
-                </div>
-                <div className="absolute bottom-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#0f1c3f] text-white">
-                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 20l4-1 10-10-3-3L5 16l-1 4z" />
-                  </svg>
                 </div>
               </div>
               <div className="flex-1">
@@ -212,9 +229,9 @@ export default function MyPage() {
               <div className="flex flex-col gap-3">
                 {settingItems.map((item) => (
                   <div
-                    key={item.id}
-                    className="flex items-center justify-between rounded-xl px-4 py-3 transition hover:bg-[#f7f6f3]"
-                  >
+                  key={item.id}
+                  className="flex items-center justify-between rounded-xl px-4 py-3 transition hover:bg-[#f7f6f3]"
+                  onClick={() => handleSettingClick(item.id)}                  >
                     <div>
                       <div className="text-[14px] font-medium text-[#2c2c2a]">
                         {item.title}
