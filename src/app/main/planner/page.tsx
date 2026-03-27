@@ -38,8 +38,12 @@ export default function PlannerPage() {
   const [planners, setPlanners] = useState<Planner[]>([])
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null)
 
+  // 모달 및 상소 상태 추가
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [allPlaces, setAllPlaces] = useState<Place[]>([])
+
   const fetchPlanner = async () => {
-    const { data: Planner, error } = await supabase
+    const { data: planner, error } = await supabase
       .from('planner')
       .select(
         `
@@ -50,13 +54,26 @@ export default function PlannerPage() {
       console.error('플래너 에러:', error)
       return
     }
-    setPlanners(Planner ?? [])
+    setPlanners(planner ?? [])
+  }
+
+  const fetchPlaces = async () => {
+    const { data: places, error } = await supabase
+      .from('place')
+      .select('id, title, location, image')
+    if (error) {
+      console.error('장소 불러오기 실패:', error)
+      return
+    }
+    setAllPlaces(places ?? [])
   }
 
   useEffect(() => {
     fetchPlanner()
+    fetchPlaces()
   }, [])
 
+  // 플래너 삭제 핸들러
   const handleDelete = async () => {
     if (!selectedPlanId) return
 
@@ -75,7 +92,48 @@ export default function PlannerPage() {
     fetchPlanner()
   }
 
+  // 상세 정보에서 장소 추가 핸들러
+  const handleAddPlace = async (place: Place) => {
+    if (!selectedPlanId) return
+
+    const { error } = await supabase
+      .from('place_planner')
+      .insert([{ planner_id: selectedPlanId, place_id: place.id }])
+
+    if (error) {
+      console.error('장소 추가 에러:', error)
+      alert('장소 추가에 실패했습니다.')
+      return
+    }
+
+    fetchPlanner()
+  }
+
+  // 상세 정보에서 장소 삭제 핸들러
+  const handleRemovePlace = async (placeId: number) => {
+    if (!selectedPlanId) return
+
+    const { error } = await supabase
+      .from('place_planner')
+      .delete()
+      .eq('id', placeId)
+
+    if (error) {
+      console.error('장소 삭제 에러:', error)
+      alert('장소 삭제에 실패했습니다.')
+      return
+    }
+
+    fetchPlanner()
+  }
+
   const selectedPlan = planners.find((plan) => plan.id === selectedPlanId)
+
+  const currentPlaceIds =
+    selectedPlan?.place_planners?.map((pp) => pp.place?.id) || []
+  const availablePlaces = allPlaces.filter(
+    (place) => !currentPlaceIds.includes(place.id),
+  )
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -264,26 +322,34 @@ export default function PlannerPage() {
                             </p>
                           )}
                         </div>
-                        {/* 드래그 핸들 */}
-                        <div className="cursor-grab text-[#ccc] hover:text-[#888] p-1">
+                        {/* 삭제 버튼 */}
+                        <button
+                          onClick={() => handleRemovePlace(place_planner.id)}
+                          className="cursor-pointer text-[#ccc] hover:text-[#888] p-1"
+                        >
                           <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 16 16"
+                            viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
-                            strokeWidth="1.5"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            width={16}
+                            height={16}
                           >
-                            <path d="M4 5h8M4 8h8M4 11h8" />
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
                           </svg>
-                        </div>
+                        </button>
                       </div>
                     )
                   })}
                 </div>
 
                 {/* 장소 추가 버튼 */}
-                <button className="mb-4 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-[12px] border-[1.5px] border-dashed border-[#d0d0d0] bg-transparent py-3.5 text-[13px] text-[#aaa] transition hover:border-[#1D9E75] hover:bg-[#f0fdf8] hover:text-[#1D9E75]">
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="mb-4 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-[12px] border-[1.5px] border-dashed border-[#d0d0d0] bg-transparent py-3.5 text-[13px] text-[#aaa] transition hover:border-[#1D9E75] hover:bg-[#f0fdf8] hover:text-[#1D9E75]"
+                >
                   <svg
                     width="14"
                     height="14"
@@ -297,6 +363,105 @@ export default function PlannerPage() {
                   장소 추가하기
                 </button>
 
+                {/* 장소 추가 모달 */}
+                {isModalOpen && (
+                  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+                    <div className="bg-white rounded-[2rem] p-8 w-full max-w-5xl max-h-[85vh] overflow-y-auto shadow-2xl relative">
+                      <button
+                        onClick={() => setIsModalOpen(false)}
+                        className="absolute top-6 right-6 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition"
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="w-5 h-5 text-gray-600"
+                        >
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+
+                      <h3 className="text-2xl font-bold mb-2">
+                        추가할 장소를 선택하세요
+                      </h3>
+                      <p className="text-gray-500 mb-8">
+                        일정에 추가하고 싶은 장소의 + 버튼을 클릭하세요.
+                      </p>
+
+                      {availablePlaces.length === 0 ? (
+                        <div className="text-center py-20 text-gray-400">
+                          더 이상 추가할 장소가 없습니다.
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                          {availablePlaces.map((place) => (
+                            <div
+                              key={place.id}
+                              className="relative h-80 rounded-3xl overflow-hidden group shadow-sm"
+                            >
+                              <img
+                                src={
+                                  place.image ||
+                                  'https://via.placeholder.com/400x500'
+                                }
+                                alt={place.title}
+                                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+
+                              <div className="absolute bottom-6 left-6 right-6">
+                                <span className="inline-block px-2 py-1 bg-[#38D4BA] text-white text-[10px] font-bold rounded mb-2">
+                                  여행 일정
+                                </span>
+                                <h3 className="text-white font-bold text-lg mb-1">
+                                  {place.title}
+                                </h3>
+                                <div className="flex items-center text-gray-300 text-xs">
+                                  <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="w-3 h-3 mr-1"
+                                  >
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                  </svg>
+                                  {place.location}
+                                </div>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => handleAddPlace(place)}
+                                className="absolute bottom-6 right-6 w-8 h-8 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-[#38D4BA] transition-colors"
+                              >
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="w-4 h-4 text-white"
+                                >
+                                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
                 {/* 지도 영역 */}
                 <div className="relative flex h-[200px] cursor-pointer items-center justify-center overflow-hidden rounded-[12px] bg-[#e8e6e0]">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#d4e8d4] via-[#c8dfc8] to-[#b8d4b8]" />
