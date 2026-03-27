@@ -1,6 +1,7 @@
-import KakaoMap from './KakaoMap'
-
+import DetailGetReview from '@/components/detail_review/Detail_GetReview'
+import DetailReview from '@/components/detail_review/Detail_Review'
 import { getDescription, getImages } from '@/lib/api/detailSearch'
+import KakaoMap from './KakaoMap'
 
 export default async function DetailPage() {
   // TODO: 실제 서비스 시 하드 코딩 제거 -> 검색어 받아와서 처리
@@ -17,7 +18,7 @@ export default async function DetailPage() {
 
   // 화면에 검색 결과 표시
   return (
-    <div className="min-h-screen bg-[#F8F9FA] pb-24">
+    <div className="min-h-screen flex flex-1 flex-col bg-[#F8F9FA] pb-24 ">
       {/* 1. 상단 메인 이미지 + 요약 영역 */}
       <div className="relative h-[450px] w-full">
         {/* 넓은 배경 이미지 */}
@@ -113,41 +114,11 @@ export default async function DetailPage() {
           <section>
             <div className="flex justify-between items-end mb-6">
               <h2 className="text-2xl font-bold text-[#222]">방문자 리뷰</h2>
-              <button className="text-[#007A6B] font-bold text-sm hover:underline">
-                모두 보기
-              </button>
+              <DetailReview searchTerm={searchTerm} placeId={1} userId={2} />
             </div>
-
             <div className="flex flex-col gap-4">
               {/* 리뷰 플레이스홀더 1 */}
-              <div className="bg-[#F4F6F6] rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  <div>
-                    <div className="text-sm font-bold text-[#333]">김지은</div>
-                    <div className="text-[#E74C3C] text-xs">★★★★★</div>
-                  </div>
-                  <div className="ml-auto text-xs text-[#999]">2 days ago</div>
-                </div>
-                <p className="text-[#666] text-sm leading-relaxed">
-                  리뷰 데이터 연동 예정...
-                </p>
-              </div>
-
-              {/* 리뷰 플레이스홀더 2 */}
-              <div className="bg-[#F4F6F6] rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  <div>
-                    <div className="text-sm font-bold text-[#333]">김민준</div>
-                    <div className="text-[#E74C3C] text-xs">★★★★☆</div>
-                  </div>
-                  <div className="ml-auto text-xs text-[#999]">1 week ago</div>
-                </div>
-                <p className="text-[#666] text-sm leading-relaxed">
-                  리뷰 데이터 연동 예정...
-                </p>
-              </div>
+              <DetailGetReview />
             </div>
           </section>
         </div>
