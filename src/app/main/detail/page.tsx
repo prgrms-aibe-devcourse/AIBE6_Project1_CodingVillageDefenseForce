@@ -1,28 +1,27 @@
+import DetailReview from '@/components/detail_review/Detail_Review'
 import KakaoMap from './KakaoMap'
-
-import { getDescription, getImages } from '@/lib/api/detailSearch'
 
 export default async function DetailPage() {
   // TODO: 실제 서비스 시 하드 코딩 제거 -> 검색어 받아와서 처리
   const searchTerm = '서울 한강공원' // test 검색어
 
   // 검색 정보 가져오기
-  const description = await getDescription(searchTerm)
-  const images = await getImages(searchTerm)
+  //const description = await getDescription(searchTerm)
+  //const images = await getImages(searchTerm)
 
   // 첫 장을 메인 이미지로 표현
-  const heroImage = images.length > 0 ? images[0].url : 'images/default.jpg'
+  //const heroImage = images.length > 0 ? images[0].url : 'images/default.jpg'
   // 나머지는 갤러리 이미지로 표현
-  const galleryImages = images.slice(1, 4)
+  //const galleryImages = images.slice(1, 4)
 
   // 화면에 검색 결과 표시
   return (
-    <div className="min-h-screen bg-[#F8F9FA] pb-24">
+    <div className="min-h-screen flex flex-1 flex-col bg-[#F8F9FA] pb-24 ">
       {/* 1. 상단 메인 이미지 + 요약 영역 */}
       <div className="relative h-[450px] w-full">
         {/* 넓은 배경 이미지 */}
         <img
-          src={heroImage}
+          // src={heroImage}
           alt={`${searchTerm} 배경`}
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -105,7 +104,7 @@ export default async function DetailPage() {
               {searchTerm}
             </h2>
             <p className="text-[#555] text-base leading-relaxed">
-              {description}
+              {/* {description} */}
             </p>
           </section>
 
@@ -113,11 +112,8 @@ export default async function DetailPage() {
           <section>
             <div className="flex justify-between items-end mb-6">
               <h2 className="text-2xl font-bold text-[#222]">방문자 리뷰</h2>
-              <button className="text-[#007A6B] font-bold text-sm hover:underline">
-                모두 보기
-              </button>
+              <DetailReview />
             </div>
-
             <div className="flex flex-col gap-4">
               {/* 리뷰 플레이스홀더 1 */}
               <div className="bg-[#F4F6F6] rounded-2xl p-6">
@@ -165,7 +161,11 @@ export default async function DetailPage() {
               관련 이미지
             </h3>
 
-            {galleryImages.length > 0 ? (
+            <div className="h-[200px] flex items-center justify-center bg-gray-100 rounded-[20px] text-[#999]">
+              이미지가 없습니다.
+            </div>
+
+            {/* {galleryImages.length > 0 ? (
               <div className="grid grid-cols-2 grid-rows-2 gap-3 h-[320px]">
                 {galleryImages[0] && (
                   <img
@@ -190,10 +190,8 @@ export default async function DetailPage() {
                 )}
               </div>
             ) : (
-              <div className="h-[200px] flex items-center justify-center bg-gray-100 rounded-[20px] text-[#999]">
-                이미지가 없습니다.
-              </div>
-            )}
+             
+            )} */}
           </section>
         </div>
       </div>
