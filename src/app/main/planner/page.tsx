@@ -3,6 +3,7 @@
 import Header from '@/components/layout/Header'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 interface Place {
@@ -32,6 +33,7 @@ interface Planner {
 }
 
 export default function PlannerPage() {
+  const router = useRouter()
   const [planners, setPlanners] = useState<Planner[]>([])
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null)
 
@@ -170,7 +172,15 @@ export default function PlannerPage() {
                 </div>
                 <div className="flex gap-2">
                   {/* 편집 */}
-                  <button className="flex h-[34px] w-[34px] items-center justify-center rounded-lg border border-[#e8e6e0] bg-white text-[#888] transition hover:bg-[#f7f6f3] hover:text-[#2c2c2a]">
+                  <button
+                    onClick={
+                      () =>
+                        router.push(
+                          `/main/planner/planner_write?id=${selectedPlanId}`,
+                        ) /* 수정 페이지로 이동 */
+                    }
+                    className="flex h-[34px] w-[34px] items-center justify-center rounded-lg border border-[#e8e6e0] bg-white text-[#888] transition hover:bg-[#f7f6f3] hover:text-[#2c2c2a]"
+                  >
                     <svg
                       width="15"
                       height="15"

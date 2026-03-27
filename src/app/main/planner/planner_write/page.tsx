@@ -1,7 +1,7 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 interface Place {
@@ -14,6 +14,10 @@ interface Place {
 function PlannerWritePage() {
   const supabase = createClient()
   const router = useRouter()
+
+  const searchParams = useSearchParams()
+  const editId = searchParams.get('id')
+
   // 기본 정보
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -28,6 +32,7 @@ function PlannerWritePage() {
   const [allPlaces, setAllPlaces] = useState<Place[]>([]) // DB의 모든 장소
   const [selectedPlaces, setSelectedPlaces] = useState<Place[]>([]) // 선택된 장소
 
+  // 장소 DB 불러오기
   const fetchPlaces = async () => {
     const { data, error } = await supabase
       .from('place')
@@ -39,9 +44,49 @@ function PlannerWritePage() {
     setAllPlaces(data ?? [])
   }
 
+  // 수정할 플래너 데이터 불러오기
+  const fetchEditData = async () => {
+    if (!editId) return
+
+    const { data, error } = await supabase
+      .from('planner')
+      .select(
+        `
+        *,
+        place_planners:place_planner(place:place_id(id, title, location, image))
+      `,
+      )
+      .eq('id', editId)
+      .single()
+
+    if (error) {
+      console.error('수정할 데이터 불러오기 실패:', error)
+      alert('데이터를 불러오는데 실패했습니다.')
+      return
+    }
+
+    if (data) {
+      setTitle(data.title)
+      setContent(data.content || '')
+      setStartDate(data.start_date || '')
+      setEndDate(data.end_date || '')
+      setPeople(data.people)
+      setBudget(data.budget)
+
+      // 연결된 장소 데이터 추출해서 상태에 넣기
+      if (data.place_planners) {
+        const places = data.place_planners
+          .map((pp: any) => pp.place)
+          .filter(Boolean) // null 값 제거
+        setSelectedPlaces(places)
+      }
+    }
+  }
+
   useEffect(() => {
     fetchPlaces()
-  }, [])
+    fetchEditData()
+  }, [editId])
 
   // 선택 안된 장소 필터링
   const availablePlaces = allPlaces.filter((place) => {
@@ -94,29 +139,56 @@ function PlannerWritePage() {
         alert('유저 정보를 불러오는 데 실패했습니다.')
         return
       }
-      // 플래너 저장
-      const { data: plannerData, error: plannerError } = await supabase
-        .from('planner')
-        .insert([
-          {
-            user_id: user.id,
-            title,
-            content: content || null,
-            start_date: startDate || null,
-            end_date: endDate || null,
-            people: people,
-            budget: budget,
-          },
-        ])
-        .select()
-        .single()
 
-      if (plannerError) throw plannerError
+      // 공통 데이터 셋
+      const planData = {
+        user_id: user.id,
+        title,
+        content: content || null,
+        start_date: startDate || null,
+        end_date: endDate || null,
+        people: people,
+        budget: budget,
+      }
 
-      // 장소를 골랐다면 place_planner 테이블에 저장
+      let currentPlannerId = editId
+
+      if (editId) {
+        // 수정 시 업데이트
+        const { error: updateError } = await supabase
+          .from('planner')
+          .update(planData)
+          .eq('id', editId)
+
+        if (updateError) throw updateError
+
+        await supabase.from('place_planner').delete().eq('planner_id', editId)
+      } else {
+        // 수정이 아닐 시 insert
+        const { data: newPlanner, error: insertError } = await supabase
+          .from('planner')
+          .insert([
+            {
+              user_id: user.id,
+              title,
+              content: content || null,
+              start_date: startDate || null,
+              end_date: endDate || null,
+              people: people,
+              budget: budget,
+            },
+          ])
+          .select()
+          .single()
+
+        if (insertError) throw insertError
+        currentPlannerId = newPlanner.id
+      }
+
+      // 장소를 골랐다면 place_planner 테이블에 저장(수정, 생성 모두)
       if (selectedPlaces.length > 0) {
         const placeIds = selectedPlaces.map((place) => ({
-          planner_id: plannerData.id,
+          planner_id: currentPlannerId,
           place_id: place.id,
         }))
         const { error: placePlannersError } = await supabase
@@ -125,11 +197,15 @@ function PlannerWritePage() {
         if (placePlannersError) throw placePlannersError
       }
 
-      alert('플랜이 성공적으로 저장되었습니다!')
+      alert(
+        editId
+          ? '플랜이 성공적으로 수정되었습니다!'
+          : '플랜이 성공적으로 저장되었습니다!',
+      )
       router.push('/main/planner')
     } catch (error) {
-      console.error('플랜 저장 실패:', error)
-      alert('플랜 저장 중 오류가 발생했습니다.')
+      console.error('플랜 저장/수정 실패:', error)
+      alert('오류가 발생했습니다.')
     }
   }
 
@@ -224,6 +300,7 @@ function PlannerWritePage() {
                 <div className="flex-1">
                   <p className="text-xs text-gray-500 mb-1">여행 인원</p>
                   <select
+                    value={people || ''}
                     onChange={(e) => setPeople(Number(e.target.value))}
                     className="w-full bg-transparent text-sm font-medium outline-none appearance-none cursor-pointer"
                   >
@@ -245,6 +322,7 @@ function PlannerWritePage() {
                   <input
                     type="number"
                     placeholder="예산 입력"
+                    value={budget || ''}
                     onChange={(e) => setBudget(Number(e.target.value))}
                     className="w-full bg-transparent text-sm font-medium outline-none placeholder-gray-400"
                   />
@@ -323,7 +401,7 @@ function PlannerWritePage() {
             type="submit"
             className="bg-[#38D4BA] hover:bg-[#2ebfa6] text-white font-medium px-8 py-4 rounded-full shadow-lg shadow-[#38D4BA]/30 transition-all transform hover:-translate-y-1"
           >
-            플랜 시작하기
+            {editId ? '플랜 수정하기' : '플랜 시작하기'}
           </button>
         </div>
       </form>
@@ -413,6 +491,7 @@ function CalendarIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+
 function UsersIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -431,6 +510,7 @@ function UsersIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+
 function WalletIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -448,6 +528,7 @@ function WalletIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+
 function PlusIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -464,6 +545,7 @@ function PlusIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+
 function MinusIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -479,6 +561,7 @@ function MinusIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+
 function MapPinIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -495,6 +578,7 @@ function MapPinIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+
 function CloseIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
