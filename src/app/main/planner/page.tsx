@@ -26,6 +26,8 @@ interface Planner {
   content: string
   start_date: string
   end_date: string
+  budget: number
+  people: number
   place_planners: Place_Planner[]
 }
 
