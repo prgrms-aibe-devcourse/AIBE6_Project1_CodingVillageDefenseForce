@@ -2,7 +2,7 @@
 
 import TagGrid from '@/components/home/TagGrid'
 import Header from '@/components/layout/Header'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase'
 import { useEffect, useState } from 'react'
 
 // emoji 매핑 (category 이름으로 매핑)
