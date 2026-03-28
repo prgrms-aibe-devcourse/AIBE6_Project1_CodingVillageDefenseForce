@@ -71,7 +71,7 @@ export default function FavoritesPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <Header placeholder="장소, 도시, 호텔 검색" />
+      <Header />
 
       <div className="flex-1 overflow-y-auto px-7 py-7">
         {/* 헤더 */}

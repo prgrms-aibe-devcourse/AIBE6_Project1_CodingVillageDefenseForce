@@ -71,7 +71,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <Header placeholder="여행지 또는 태그를 검색하세요" />
+      <Header />
       <div className="flex-1 overflow-y-auto px-7 py-7">
         <h1 className="text-[22px] font-medium text-[#2c2c2a] mb-1.5">
           어떤 여행을 원하세요?

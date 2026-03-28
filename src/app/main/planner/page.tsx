@@ -84,7 +84,7 @@ export default function PlannerPage() {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       {/* 검색바 */}
-      <Header placeholder="플랜이나 장소 검색..." />
+      <Header />
 
       {/* 2컬럼 레이아웃 */}
       <div className="flex flex-1 overflow-hidden">
