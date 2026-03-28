@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import KaKaoMapModal from './components/KaKaoMapModal'
 
 interface Place {
   id: number
@@ -46,6 +47,8 @@ export default function PlannerPage() {
   // 모달 및 상소 상태 추가
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [allPlaces, setAllPlaces] = useState<Place[]>([])
+
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false)
 
   const fetchUser = async () => {
     const { data: authUser, error: authError } = await supabase.auth.getUser()
@@ -172,6 +175,9 @@ export default function PlannerPage() {
   const availablePlaces = allPlaces.filter(
     (place) => !currentPlaceIds.includes(place.id),
   )
+
+  const selectedPlaces =
+    selectedPlan?.place_planners.map((pp) => pp.place).filter(Boolean) || []
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -582,7 +588,10 @@ export default function PlannerPage() {
                       opacity="0.7"
                     />
                   </svg>
-                  <button className="relative z-10 flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-[13px] font-medium text-[#2c2c2a] shadow-md transition hover:shadow-lg">
+                  <button
+                    onClick={() => setIsMapModalOpen(true)}
+                    className="relative z-10 flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-[13px] font-medium text-[#2c2c2a] shadow-md transition hover:shadow-lg"
+                  >
                     <svg
                       width="14"
                       height="14"
@@ -602,6 +611,12 @@ export default function PlannerPage() {
           )}
         </div>
       </div>
+      {/* 카카오맵 모달 렌더링 */}
+      <KaKaoMapModal
+        isOpen={isMapModalOpen}
+        onClose={() => setIsMapModalOpen(false)}
+        places={selectedPlaces}
+      />
     </div>
   )
 }
