@@ -32,9 +32,14 @@ interface Planner {
   place_planners: Place_Planner[]
 }
 
+interface DBUser {
+  id: number
+}
+
 export default function PlannerPage() {
   const supabase = createClient()
   const router = useRouter()
+  const [user, setUser] = useState<DBUser | null>(null)
   const [planners, setPlanners] = useState<Planner[]>([])
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null)
 
@@ -42,13 +47,40 @@ export default function PlannerPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [allPlaces, setAllPlaces] = useState<Place[]>([])
 
+  const fetchUser = async () => {
+    const { data: authUser, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !authUser?.user) {
+      alert('로그인이 필요합니다')
+      router.push('/login')
+      return
+    }
+
+    const { data: user, error: userError } = await supabase
+      .from('user')
+      .select('id')
+      .eq('uid', authUser.user.id)
+      .single()
+
+    if (userError || !user) {
+      console.error('유저 매핑 실패:', userError)
+      alert('유저 정보를 불러오는 데 실패했습니다.')
+      return
+    }
+
+    setUser(user)
+  }
+
   const fetchPlanner = async () => {
+    if (!user?.id) return
+
     const { data: planner, error } = await supabase
       .from('planner')
       .select(
         `
       *, place_planners:place_planner(id, place(id, title, content, location, image, location_id))`,
       )
+      .eq('user_id', user?.id)
       .order('id', { ascending: false })
     if (error) {
       console.error('플래너 에러:', error)
@@ -69,9 +101,15 @@ export default function PlannerPage() {
   }
 
   useEffect(() => {
-    fetchPlanner()
+    fetchUser()
     fetchPlaces()
   }, [])
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchPlanner()
+    }
+  }, [user])
 
   // 플래너 삭제 핸들러
   const handleDelete = async () => {
