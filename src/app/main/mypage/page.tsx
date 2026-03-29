@@ -12,9 +12,9 @@ const activityItems = [
 
 const settingItems = [
   {
-    id: 'profile',
-    title: '이메일 변경',
-    desc: '이메일을 변경합니다.',
+    id: 'nickname',
+    title: '닉네임 변경',
+    desc: '트리픽에서 사용할 이름을 변경합니다.',
   },
   {
     id: 'password',
@@ -22,9 +22,9 @@ const settingItems = [
     desc: '주기적인 변경으로 계정을 보호하세요.',
   },
   {
-    id: 'nickname',
-    title: '닉네임 변경',
-    desc: '트리픽에서 사용할 이름을 변경합니다.',
+    id: 'profile',
+    title: '회원 탈퇴',
+    desc: '트리픽을 탈퇴합니다.',
   },
 ]
 
@@ -89,9 +89,11 @@ export default function MyPage() {
   const [nicknameInput, setNicknameInput] = useState('')
   const [isSavingNickname, setIsSavingNickname] = useState(false)
   const [nicknameError, setNicknameError] = useState('')
-  // 이메일 변경 모달 상태 (UI만)
-  const [isEmailOpen, setIsEmailOpen] = useState(false)
-  const [emailInput, setEmailInput] = useState('')
+  // 회원탈퇴 모달 상태
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [deleteInput, setDeleteInput] = useState('')
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   // 활동 항목 클릭 시 이동 경로 처리
   const handleActivityClick = (id: string) => {
@@ -119,23 +121,18 @@ export default function MyPage() {
         .single()
 
       if (!error) {
-        if (data?.display_name) {
-          setDisplayName(data.display_name)
-        }
+        if (data?.display_name) setDisplayName(data.display_name)
         if (data?.avatar_url) {
           setAvatarUrl(data.avatar_url)
         } else {
           setAvatarUrl('https://img.icons8.com/material-sharp/48/user.png')
         }
-        if (data?.email) {
-          setEmail(data.email)
-        }
+        if (data?.email) setEmail(data.email)
       }
     }
 
     fetchProfile()
   }, [])
-
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -174,9 +171,10 @@ export default function MyPage() {
     }
 
     if (id === 'profile') {
-      // 이메일 변경 모달 열기 (UI만)
-      setEmailInput(email === 'loading. .' ? '' : email)
-      setIsEmailOpen(true)
+      // 회원탈퇴 모달 열기
+      setDeleteInput('')
+      setDeleteError('')
+      setIsDeleteOpen(true)
       return
     }
     return
@@ -208,7 +206,6 @@ export default function MyPage() {
       setIsSavingNickname(false)
       return
     }
-  
 
     const { error: authError } = await supabase.auth.updateUser({
       data: { name: nextName, full_name: nextName },
@@ -225,9 +222,25 @@ export default function MyPage() {
     setIsNicknameOpen(false)
   }
 
-  // 이메일 저장 처리 (UI만)
-  const handleEmailSave = () => {
-    setIsEmailOpen(false)
+  const handleDeleteAccount = async () => {
+    if (deleteInput !== '탈퇴합니다') {
+      setDeleteError("'탈퇴합니다'를 정확히 입력해주세요.")
+      return
+    }
+
+    setIsDeletingAccount(true)
+    setDeleteError('')
+
+    const res = await fetch('/auth/delete-account', { method: 'DELETE' })
+    const result = await res.json()
+
+    if (!res.ok) {
+      setDeleteError(result.error ?? '탈퇴 처리 중 오류가 발생했습니다.')
+      setIsDeletingAccount(false)
+      return
+    }
+
+    router.push('/')
   }
 
   return (
@@ -239,131 +252,131 @@ export default function MyPage() {
         <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
           <div className="flex flex-col gap-6">
             <div className="rounded-2xl bg-white p-6 shadow-[0_12px_30px_rgba(15,14,11,0.05)]">
-            <div className="flex flex-wrap items-center gap-5">
-              <div className="relative">
-                <div className="flex h-[88px] w-[88px] items-center justify-center rounded-full border-[3px] border-[#2fb9b1]">
-                  <div className="flex h-[76px] w-[76px] items-center justify-center overflow-hidden rounded-full bg-[#f0f0f0] text-[26px] font-semibold text-[#2c2c2a]">
-                    <img
-                      src={avatarUrl}
-                      alt="프로필 이미지"
-                      className="h-full w-full object-cover"
-                      onError={(event) => {
-                        event.currentTarget.src =
-                          'https://img.icons8.com/material-sharp/48/user.png'
-                      }}
-                    />
+              <div className="flex flex-wrap items-center gap-5">
+                <div className="relative">
+                  <div className="flex h-[88px] w-[88px] items-center justify-center rounded-full border-[3px] border-[#2fb9b1]">
+                    <div className="flex h-[76px] w-[76px] items-center justify-center overflow-hidden rounded-full bg-[#f0f0f0] text-[26px] font-semibold text-[#2c2c2a]">
+                      <img
+                        src={avatarUrl}
+                        alt="프로필 이미지"
+                        className="h-full w-full object-cover"
+                        onError={(event) => {
+                          event.currentTarget.src =
+                            'https://img.icons8.com/material-sharp/48/user.png'
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <div className="text-[22px] font-semibold text-[#18202a]">
+                    {displayName}
+                  </div>
+                  <div className="mt-1 text-[13px] text-[#8a8a87]">{email}</div>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-[#e6f7f6] px-3 py-1 text-[11px] font-medium text-[#2fb9b1]">
+                      Tripick User
+                    </span>
+                    <span className="rounded-full bg-[#e7f4ff] px-3 py-1 text-[11px] font-medium text-[#2a7bdc]">
+                      Korea
+                    </span>
                   </div>
                 </div>
               </div>
-              <div className="flex-1">
-                <div className="text-[22px] font-semibold text-[#18202a]">
-                  {displayName}
+            </div>
+
+            <div>
+              <div className="mb-4 flex items-center gap-2">
+                <span className="h-5 w-1 rounded-full bg-[#2fb9b1]" />
+                <span className="text-[15px] font-semibold text-[#2c2c2a]">내 활동</span>
+              </div>
+              <div className="rounded-2xl bg-white p-4 shadow-[0_12px_30px_rgba(15,14,11,0.05)]">
+                <div className="flex flex-col gap-2">
+                  {activityItems.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className="flex items-center justify-between rounded-xl px-4 py-3 text-left transition hover:bg-[#f7f6f3]"
+                      onClick={() => handleActivityClick(item.id)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e6f7f6] text-[#12a7a0]">
+                          <ActivityIcon type={item.icon} />
+                        </div>
+                        <span className="text-[14px] font-medium text-[#2c2c2a]">
+                          {item.label}
+                        </span>
+                      </div>
+                      <span className="text-[#c0beb8]">›</span>
+                    </button>
+                  ))}
                 </div>
-                <div className="mt-1 text-[13px] text-[#8a8a87]">{email}</div>
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-[#e6f7f6] px-3 py-1 text-[11px] font-medium text-[#2fb9b1]">
-                    Tripick User
-                  </span>
-                  <span className="rounded-full bg-[#e7f4ff] px-3 py-1 text-[11px] font-medium text-[#2a7bdc]">
-                    Korea
-                  </span>
+              </div>
+            </div>
+
+            <div>
+              <div className="mb-4 flex items-center gap-2">
+                <span className="h-5 w-1 rounded-full bg-[#22355d]" />
+                <span className="text-[15px] font-semibold text-[#2c2c2a]">계정 설정</span>
+              </div>
+              <div className="rounded-2xl bg-white p-4 shadow-[0_12px_30px_rgba(15,14,11,0.05)]">
+                <div className="flex flex-col gap-3">
+                  {settingItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between rounded-xl px-4 py-3 transition hover:bg-[#f7f6f3] cursor-pointer"
+                      onClick={() => handleSettingClick(item.id)}
+                    >
+                      <div>
+                        <div className={`text-[14px] font-medium ${item.id === 'profile' ? 'text-[#d14c3f]' : 'text-[#2c2c2a]'}`}>
+                          {item.title}
+                        </div>
+                        <div className="mt-1 text-[12px] text-[#9a9893]">
+                          {item.desc}
+                        </div>
+                      </div>
+                      <span className="text-[#c0beb8]">›</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
 
-          <div>
-            <div className="mb-4 flex items-center gap-2">
-              <span className="h-5 w-1 rounded-full bg-[#2fb9b1]" />
-              <span className="text-[15px] font-semibold text-[#2c2c2a]">내 활동</span>
-            </div>
-            <div className="rounded-2xl bg-white p-4 shadow-[0_12px_30px_rgba(15,14,11,0.05)]">
-              <div className="flex flex-col gap-2">
-                {activityItems.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className="flex items-center justify-between rounded-xl px-4 py-3 text-left transition hover:bg-[#f7f6f3]"
-                    onClick={() => handleActivityClick(item.id)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e6f7f6] text-[#12a7a0]">
-                        <ActivityIcon type={item.icon} />
-                      </div>
-                      <span className="text-[14px] font-medium text-[#2c2c2a]">
-                        {item.label}
-                      </span>
-                    </div>
-                    <span className="text-[#c0beb8]">›</span>
-                  </button>
-                ))}
+          <div className="flex flex-col gap-6">
+            <div className="rounded-2xl bg-[#0f1c3f] p-6 text-white shadow-[0_20px_40px_rgba(15,28,63,0.25)]">
+              <div className="text-[12px] uppercase tracking-[1.5px] text-[#c7d3ea]">
+                내가 떠나본 여행지 수
+              </div>
+              <div className="mt-3 text-[36px] font-semibold">24</div>
+              <div className="mt-4 border-t border-white/20 pt-3 text-[12px] text-[#c7d3ea]">
+                Tripick과 함께한 이후로.
               </div>
             </div>
-          </div>
 
-          <div>
-            <div className="mb-4 flex items-center gap-2">
-              <span className="h-5 w-1 rounded-full bg-[#22355d]" />
-              <span className="text-[15px] font-semibold text-[#2c2c2a]">계정 설정</span>
-            </div>
-            <div className="rounded-2xl bg-white p-4 shadow-[0_12px_30px_rgba(15,14,11,0.05)]">
-              <div className="flex flex-col gap-3">
-                {settingItems.map((item) => (
-                  <div
-                  key={item.id}
-                  className="flex items-center justify-between rounded-xl px-4 py-3 transition hover:bg-[#f7f6f3]"
-                  onClick={() => handleSettingClick(item.id)}                  >
-                    <div>
-                      <div className="text-[14px] font-medium text-[#2c2c2a]">
-                        {item.title}
-                      </div>
-                      <div className="mt-1 text-[12px] text-[#9a9893]">
-                        {item.desc}
-                      </div>
-                    </div>
-                    <span className="text-[#c0beb8]">›</span>
+            <div className="rounded-2xl bg-white p-5 text-[#2c2c2a] shadow-[0_12px_30px_rgba(15,14,11,0.05)]">
+              <div className="text-[13px] font-semibold">지원 및 기타</div>
+              <div className="mt-4 flex flex-col gap-3 text-[12px] text-[#7f7d78]">
+                {helpItems.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between">
+                    <span>{item.label}</span>
+                    <span className="text-[#c0beb8]">↗</span>
                   </div>
                 ))}
               </div>
+              <button
+                type="button"
+                className="mt-4 flex items-center gap-2 text-[12px] font-semibold text-[#1fb7ad]"
+                onClick={handleLogout}
+              >
+                <span>로그아웃</span>
+              </button>
+            </div>
+
+            <div className="text-center text-[10px] uppercase tracking-[2px] text-[#b7b4ae]">
+              Tripick v1.0
             </div>
           </div>
-        </div>
-
-        <div className="flex flex-col gap-6">
-          <div className="rounded-2xl bg-[#0f1c3f] p-6 text-white shadow-[0_20px_40px_rgba(15,28,63,0.25)]">
-            <div className="text-[12px] uppercase tracking-[1.5px] text-[#c7d3ea]">
-              내가 떠나본 여행지 수
-            </div>
-            <div className="mt-3 text-[36px] font-semibold">24</div>
-            <div className="mt-4 border-t border-white/20 pt-3 text-[12px] text-[#c7d3ea]">
-              Tripick과 함께한 이후로.
-            </div>
-          </div>
-
-
-          <div className="rounded-2xl bg-white p-5 text-[#2c2c2a] shadow-[0_12px_30px_rgba(15,14,11,0.05)]">
-            <div className="text-[13px] font-semibold">지원 및 기타</div>
-            <div className="mt-4 flex flex-col gap-3 text-[12px] text-[#7f7d78]">
-              {helpItems.map((item) => (
-                <div key={item.id} className="flex items-center justify-between">
-                  <span>{item.label}</span>
-                  <span className="text-[#c0beb8]">↗</span>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              className="mt-4 flex items-center gap-2 text-[12px] font-semibold text-[#1fb7ad]"
-              onClick={handleLogout}
-            >
-              <span>로그아웃</span>
-            </button>
-          </div>
-
-          <div className="text-center text-[10px] uppercase tracking-[2px] text-[#b7b4ae]">
-            Tripick v1.0 
-          </div>
-        </div>
         </div>
       </main>
 
@@ -385,9 +398,7 @@ export default function MyPage() {
               placeholder="새 닉네임"
             />
             {nicknameError ? (
-              <p className="mt-2 text-[12px] text-[#d14c3f]">
-                {nicknameError}
-              </p>
+              <p className="mt-2 text-[12px] text-[#d14c3f]">{nicknameError}</p>
             ) : null}
             <div className="mt-5 flex gap-2">
               <button
@@ -411,43 +422,50 @@ export default function MyPage() {
         </div>
       )}
 
-      {/* 이메일 변경 모달 (UI만) */}
-      {isEmailOpen && (
+      {/* 회원탈퇴 모달 */}
+      {isDeleteOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
           <div className="w-full max-w-[420px] rounded-2xl bg-white p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
             <div className="text-[16px] font-semibold text-[#2c2c2a]">
-              이메일 변경
+              회원 탈퇴
             </div>
             <p className="mt-2 text-[12px] text-[#8a8a87]">
-              변경하실 이메일을 입력해주세요.
+              탈퇴하면 모든 데이터가 삭제되며 복구할 수 없어요.
+              <br />
+              계속하려면 아래에{' '}
+              <span className="font-semibold text-[#d14c3f]">탈퇴합니다</span>를 입력해주세요.
             </p>
             <input
-              type="email"
-              value={emailInput}
-              onChange={(event) => setEmailInput(event.target.value)}
+              type="text"
+              value={deleteInput}
+              onChange={(e) => setDeleteInput(e.target.value)}
               className="mt-4 w-full rounded-xl border border-[#e8e6e0] bg-[#f7f6f3] px-3 py-2 text-[13px] text-[#2c2c2a] outline-none"
-              placeholder="새 이메일"
+              placeholder="탈퇴합니다"
             />
+            {deleteError && (
+              <p className="mt-2 text-[12px] text-[#d14c3f]">{deleteError}</p>
+            )}
             <div className="mt-5 flex gap-2">
               <button
                 type="button"
                 className="flex-1 rounded-xl border border-[#e8e6e0] px-3 py-2 text-[13px] text-[#2c2c2a]"
-                onClick={() => setIsEmailOpen(false)}
+                onClick={() => setIsDeleteOpen(false)}
+                disabled={isDeletingAccount}
               >
                 취소
               </button>
               <button
                 type="button"
-                className="flex-1 rounded-xl bg-[#1D9E75] px-3 py-2 text-[13px] font-semibold text-white"
-                onClick={handleEmailSave}
+                className="flex-1 rounded-xl bg-[#d14c3f] px-3 py-2 text-[13px] font-semibold text-white disabled:opacity-60"
+                onClick={handleDeleteAccount}
+                disabled={isDeletingAccount}
               >
-                저장
+                {isDeletingAccount ? '처리 중...' : '탈퇴하기'}
               </button>
             </div>
           </div>
         </div>
       )}
-
     </div>
   )
 }
