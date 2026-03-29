@@ -88,7 +88,7 @@ export default function MyReviewPage() {
       <div className="mt-4 mb-6">
         <h2 className="text-4xl font-bold text-[#1a1a1a]">My Reviews</h2>
         <p className="text-sm text-gray-500 mt-1">
-          Reflecting on your journey through 12 unique destinations.
+          당신이 다녀온 {object.length}곳의 여행 이야기.
         </p>
       </div>
 
@@ -150,7 +150,7 @@ export default function MyReviewPage() {
                         href="/main/detail/"
                         className="text-xs font-semibold text-gray-700 uppercase tracking-widest hover:text-[#1D9E75]"
                       >
-                        리뷰 상세페이지
+                        View Place
                       </Link>
                     </div>
                   </div>
