@@ -1,6 +1,5 @@
 'use client'
 
-import Header from '@/components/layout/Header'
 import KakaoMapModal from './components/KaKaoMapModal'
 import PlannerDetail from './components/PlannerDetail'
 import PlannerList from './components/PlannerList'
@@ -40,8 +39,6 @@ export default function PlannerPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <Header placeholder="플랜이나 장소 검색..." />
-
       <div className="flex flex-1 overflow-hidden">
         '{/* 플랜 목록 */}
         <PlannerList
