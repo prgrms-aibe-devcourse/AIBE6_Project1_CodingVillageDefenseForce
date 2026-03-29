@@ -1,6 +1,7 @@
 'use client'
 
 import Header from '@/components/layout/Header'
+import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
 
 interface Place {
