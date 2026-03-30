@@ -17,8 +17,10 @@ interface Review {
 }
 
 interface Place {
+  id: number
   title: string
   image: string
+  location: string
 }
 
 export default function ReviewList({
