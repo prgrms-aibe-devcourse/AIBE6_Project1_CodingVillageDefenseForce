@@ -33,7 +33,7 @@ export default function MyReviewPage() {
       const { data: obj, error } = await supabase
         .from('review')
         .select(
-          `id, content, rating, created_at, user(id), place(title, content, location, image)`,
+          `id, content, rating, created_at, user(id), place(id, title, content, location, image)`,
         )
       if (error) throw error
       setObject(obj ?? [])

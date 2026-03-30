@@ -17,8 +17,10 @@ interface Review {
 }
 
 interface Place {
+  id: number
   title: string
   image: string
+  location: string
 }
 
 export default function ReviewCard({ obj, handleOnDelete, formatDate }: Props) {
@@ -72,7 +74,7 @@ export default function ReviewCard({ obj, handleOnDelete, formatDate }: Props) {
               </span>
             </div>
             <Link
-              href="/main/detail/"
+              href={`/main/detail?/id=${obj.place.id}&placeName=${obj.place.title}&location=${obj.place.location}`}
               className="text-xs font-semibold text-gray-700 uppercase tracking-widest hover:text-[#1D9E75]"
             >
               View Place
