@@ -1,5 +1,5 @@
 'use client'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -41,6 +41,7 @@ interface Location {
 }
 
 export default function SubPage() {
+  const supabase = createClient()
   // State 로 관리
   const [tags, setTags] = useState<Tag[]>([])
   const [object, setObject] = useState<Place[]>([])
