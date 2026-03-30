@@ -60,7 +60,6 @@ export default async function DetailPage({
     .select('tag(category)')
     .eq('place_id', locationid)
 
-  console.log(tags)
   // 화면에 검색 결과 표시
   return (
     <div className="flex flex-1 flex-col bg-[#F8F9FA]">

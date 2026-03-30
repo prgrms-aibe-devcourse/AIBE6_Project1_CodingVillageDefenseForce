@@ -85,8 +85,8 @@ export default function DetailReview({
   useEffect(() => {
     fetchReview()
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data: user }) => {
-      setAuthUser(user)
+    supabase.auth.getUser().then(({ data }) => {
+      setAuthUser(data.user)
     })
   }, [])
 
