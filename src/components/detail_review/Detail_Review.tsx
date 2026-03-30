@@ -131,7 +131,7 @@ export default function DetailReview({
               <form className="flex flex-col gap-3" onSubmit={handleOnSubmit}>
                 <input
                   placeholder="이름"
-                  className="border border-[#e8e6e0] rounded-lg px-4 py-2.5 text-sm outline-none"
+                  className="border border-[#e8e6e0] rounded-lg px-4 py-2.5 text-sm outline-none text-black"
                   value={
                     authUser?.user_metadata?.display_name ||
                     authUser?.user_metadata?.name ||
@@ -173,7 +173,7 @@ export default function DetailReview({
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="리뷰 내용을 입력해주세요"
                   rows={5}
-                  className="border border-[#e8e6e0] rounded-lg px-4 py-2.5 text-sm resize-none"
+                  className="border border-[#e8e6e0] rounded-lg px-4 py-2.5 text-sm resize-none text-black"
                 />
                 <div className="flex gap-2 justify-end mt-1">
                   <button
