@@ -59,10 +59,10 @@ export default function PlaceCard({
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2 text-xs">
             <span className="rounded-md bg-[#f5f5f4] px-2 py-0.5 text-[#5f5e5a]">
-              {place.location.title}
+              {place.location?.title}
             </span>
-            {place.place_tag.map((e) => (
-              <span key={e.tag.id} className="text-[#1D9E75]">
+            {place.place_tag.map((e, index) => (
+              <span key={`${e.tag.id}-${index}`} className="text-[#1D9E75]">
                 #{e.tag.category}
               </span>
             ))}

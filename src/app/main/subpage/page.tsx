@@ -122,7 +122,7 @@ function SubPageContent() {
 
   const filteredPlaces = places
     .filter(
-      (p) => selectedRegion === '전체' || p.location.title === selectedRegion,
+      (p) => selectedRegion === '전체' || p.location?.title === selectedRegion,
     )
     .filter((p) =>
       p.place_tag.some((pt) => selectedTags.includes(pt.tag.category)),
