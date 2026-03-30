@@ -23,19 +23,28 @@ export default function KakaoMap({ searchTerm }: KakaoMapProps) {
     script.onload = () => {
       window.kakao.maps.load(() => {
         const ps = new window.kakao.maps.services.Places()
+
+        const showMap = (result: any) => {
+          const lat = parseFloat(result[0].y)
+          const lng = parseFloat(result[0].x)
+          const map = new window.kakao.maps.Map(mapRef.current, {
+            center: new window.kakao.maps.LatLng(lat, lng),
+            level: 3,
+          })
+          new window.kakao.maps.Marker({
+            position: new window.kakao.maps.LatLng(lat, lng),
+            map: map,
+          })
+        }
+
         ps.keywordSearch(searchTerm, (result: any, status: any) => {
           if (status === window.kakao.maps.services.Status.OK) {
-            const lat = parseFloat(result[0].y)
-            const lng = parseFloat(result[0].x)
-
-            const map = new window.kakao.maps.Map(mapRef.current, {
-              center: new window.kakao.maps.LatLng(lat, lng),
-              level: 3,
-            })
-
-            new window.kakao.maps.Marker({
-              position: new window.kakao.maps.LatLng(lat, lng),
-              map: map,
+            showMap(result)
+          } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
+            ps.keywordSearch(searchTerm, (result2: any, status2: any) => {
+              if (status2 === window.kakao.maps.services.Status.OK) {
+                showMap(result2)
+              }
             })
           }
         })

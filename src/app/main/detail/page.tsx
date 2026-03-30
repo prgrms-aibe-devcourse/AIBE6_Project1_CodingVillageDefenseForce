@@ -59,7 +59,7 @@ export default async function DetailPage({
   const { data: tags } = await supabase
     .from('place_tag')
     .select('tag(category)')
-    .eq('place_id', id)
+    .eq('place_id', locationid)
 
   // 화면에 검색 결과 표시
   return (
@@ -176,7 +176,7 @@ export default async function DetailPage({
         <div className="lg:w-[35%] flex flex-col gap-10">
           {/* 지도 영역 (추후 카카오/구글 맵 연동 공간) -> (카카오 맵 추가 완료) */}
           <section className="relative w-full h-[240px] bg-[#BCE0D7] rounded-[24px]  overflow-hidden border-[6px] border-white shadow-sm">
-            <KakaoMap searchTerm={`${searchTerm}`} />
+            <KakaoMap searchTerm={`${location ? location : searchTerm}`} />
           </section>
 
           {/* 갤러리 영역 */}
