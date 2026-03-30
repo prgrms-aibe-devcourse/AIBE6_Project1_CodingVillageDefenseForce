@@ -39,6 +39,10 @@ export default function PlannerPage() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
+      {/* 검색바 */}
+      <Header />
+
+      {/* 2컬럼 레이아웃 */}
       <div className="flex flex-1 overflow-hidden">
         '{/* 플랜 목록 */}
         <PlannerList

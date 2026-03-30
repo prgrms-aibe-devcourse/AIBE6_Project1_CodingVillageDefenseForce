@@ -12,31 +12,66 @@ interface Place {
   image: string
 }
 
+interface Favorite {
+  id: number
+  place_id: number
+  place: Place
+}
+
 export default function FavoritesPage() {
-  const [places, setPlaces] = useState<Place[]>([])
+  const [favorites, setFavorites] = useState<Favorite[]>([])
   const [loading, setLoading] = useState(true)
+  const supabase = createClient()
 
   useEffect(() => {
-    const fetchPlaces = async () => {
-      const supabase = createClient()
-      const { data, error } = await supabase.from('place').select('*')
-      if (error) {
-        console.error('에러:', error)
+    const fetchFavorites = async () => {
+      // 로그인한 유저 가져오기
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        setLoading(false)
         return
       }
-      setPlaces(data)
+
+      // 내 즐겨찾기만 가져오기 (place 정보도 같이)
+      const { data, error } = await supabase
+        .from('favorite')
+        .select('id, place_id, place(*)')
+        .eq('user_id', user.id)
+
+      if (error) {
+        console.error('즐겨찾기 에러:', error)
+        setLoading(false)
+        return
+      }
+
+      setFavorites(data as unknown as Favorite[])
       setLoading(false)
     }
-    fetchPlaces()
+    fetchFavorites()
   }, [])
 
-  const remove = (id: number) => {
-    setPlaces((prev) => prev.filter((p) => p.id !== id))
+  const remove = async (favoriteId: number) => {
+    // DB에서 삭제
+    const { error } = await supabase
+      .from('favorite')
+      .delete()
+      .eq('id', favoriteId)
+
+    if (error) {
+      console.error('삭제 에러:', error)
+      return
+    }
+    // 화면에서도 삭제
+    setFavorites((prev) => prev.filter((f) => f.id !== favoriteId))
   }
+
+  const places = favorites.map((f) => ({ ...f.place, favoriteId: f.id }))
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <Header placeholder="장소, 도시, 호텔 검색" />
+      <Header />
 
       <div className="flex-1 overflow-y-auto px-7 py-7">
         {/* 헤더 */}
@@ -75,7 +110,11 @@ export default function FavoritesPage() {
         ) : (
           <div className="mb-8 grid grid-cols-3 gap-[18px]">
             {places.map((place) => (
-              <PlaceCard key={place.id} place={place} onRemove={remove} />
+              <PlaceCard
+                key={place.id}
+                place={place}
+                onRemove={() => remove(place.favoriteId)}
+              />
             ))}
           </div>
         )}
@@ -106,34 +145,30 @@ function PlaceCard({
   place,
   onRemove,
 }: {
-  place: Place
-  onRemove: (id: number) => void
+  place: Place & { favoriteId: number }
+  onRemove: () => void
 }) {
   return (
     <div className="group cursor-pointer overflow-hidden rounded-[14px] border border-[#e8e6e0] bg-white transition-all hover:-translate-y-0.5 hover:shadow-2xl">
-      {/* 이미지 */}
       <div className="relative h-[180px] overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
           style={{ backgroundImage: `url('${place.image}')` }}
         />
-        {/* 삭제 버튼 */}
         <button
           onClick={(e) => {
             e.stopPropagation()
-            onRemove(place.id)
+            onRemove()
           }}
           className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-[#666] text-sm transition hover:bg-white hover:text-[#e24b4a]"
         >
           ×
         </button>
-        {/* 지역 배지 */}
         <span className="absolute bottom-2.5 left-2.5 rounded px-2 py-0.5 text-[10px] font-medium bg-[#E1F5EE] text-[#0F6E56] tracking-[1px]">
           {place.location}
         </span>
       </div>
 
-      {/* 카드 바디 */}
       <div className="px-4 py-3.5">
         <div className="mb-1.5">
           <span className="text-[15px] font-medium leading-snug text-[#2c2c2a]">
