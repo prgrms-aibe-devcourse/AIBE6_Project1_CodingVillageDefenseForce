@@ -36,7 +36,14 @@ const helpItems = [
 function ActivityIcon({ type }: { type: string }) {
   if (type === 'eye') {
     return (
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <svg
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      >
         <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" />
         <circle cx="12" cy="12" r="3" />
       </svg>
@@ -44,7 +51,14 @@ function ActivityIcon({ type }: { type: string }) {
   }
   if (type === 'edit') {
     return (
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <svg
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      >
         <path d="M12 20h9" />
         <path d="M4 16l8-8 4 4-8 8H4z" />
       </svg>
@@ -65,7 +79,14 @@ function ActivityIcon({ type }: { type: string }) {
     )
   }
   return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <svg
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+    >
       <path d="M3 6h18" />
       <path d="M7 6v14" />
       <path d="M17 6v14" />
@@ -100,6 +121,9 @@ export default function MyPage() {
     if (id === 'views') {
       router.push('/main/favorites')
       return
+    }
+    if (id === 'reviews') {
+      router.push('/main/mypage/myreviews')
     }
   }
 
@@ -180,7 +204,7 @@ export default function MyPage() {
     return
   }
 
-  // 닉네임 저장 
+  // 닉네임 저장
   const handleNicknameSave = async () => {
     const nextName = nicknameInput.trim()
     if (!nextName) {
@@ -288,7 +312,9 @@ export default function MyPage() {
             <div>
               <div className="mb-4 flex items-center gap-2">
                 <span className="h-5 w-1 rounded-full bg-[#2fb9b1]" />
-                <span className="text-[15px] font-semibold text-[#2c2c2a]">내 활동</span>
+                <span className="text-[15px] font-semibold text-[#2c2c2a]">
+                  내 활동
+                </span>
               </div>
               <div className="rounded-2xl bg-white p-4 shadow-[0_12px_30px_rgba(15,14,11,0.05)]">
                 <div className="flex flex-col gap-2">
@@ -317,7 +343,9 @@ export default function MyPage() {
             <div>
               <div className="mb-4 flex items-center gap-2">
                 <span className="h-5 w-1 rounded-full bg-[#22355d]" />
-                <span className="text-[15px] font-semibold text-[#2c2c2a]">계정 설정</span>
+                <span className="text-[15px] font-semibold text-[#2c2c2a]">
+                  계정 설정
+                </span>
               </div>
               <div className="rounded-2xl bg-white p-4 shadow-[0_12px_30px_rgba(15,14,11,0.05)]">
                 <div className="flex flex-col gap-3">
@@ -328,7 +356,9 @@ export default function MyPage() {
                       onClick={() => handleSettingClick(item.id)}
                     >
                       <div>
-                        <div className={`text-[14px] font-medium ${item.id === 'profile' ? 'text-[#d14c3f]' : 'text-[#2c2c2a]'}`}>
+                        <div
+                          className={`text-[14px] font-medium ${item.id === 'profile' ? 'text-[#d14c3f]' : 'text-[#2c2c2a]'}`}
+                        >
                           {item.title}
                         </div>
                         <div className="mt-1 text-[12px] text-[#9a9893]">
@@ -358,7 +388,10 @@ export default function MyPage() {
               <div className="text-[13px] font-semibold">지원 및 기타</div>
               <div className="mt-4 flex flex-col gap-3 text-[12px] text-[#7f7d78]">
                 {helpItems.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between">
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between"
+                  >
                     <span>{item.label}</span>
                     <span className="text-[#c0beb8]">↗</span>
                   </div>
@@ -433,7 +466,8 @@ export default function MyPage() {
               탈퇴하면 모든 데이터가 삭제되며 복구할 수 없어요.
               <br />
               계속하려면 아래에{' '}
-              <span className="font-semibold text-[#d14c3f]">탈퇴합니다</span>를 입력해주세요.
+              <span className="font-semibold text-[#d14c3f]">탈퇴합니다</span>를
+              입력해주세요.
             </p>
             <input
               type="text"
