@@ -105,6 +105,8 @@ export default function MyPage() {
   )
   const [email, setEmail] = useState('loading. .')
   const [userId, setUserId] = useState<string | null>(null)
+  // favorites 카운트
+  const [favoriteCount, setFavoriteCount] = useState(0)
   // 닉네임 변경 모달 상태
   const [isNicknameOpen, setIsNicknameOpen] = useState(false)
   const [nicknameInput, setNicknameInput] = useState('')
@@ -137,6 +139,12 @@ export default function MyPage() {
 
       if (!user) return
       setUserId(user.id)
+      // favorite
+      const { count } = await supabase
+        .from('favorite')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+      setFavoriteCount(count ?? 0)
 
       const { data, error } = await supabase
         .from('user')
@@ -376,11 +384,11 @@ export default function MyPage() {
           <div className="flex flex-col gap-6">
             <div className="rounded-2xl bg-[#0f1c3f] p-6 text-white shadow-[0_20px_40px_rgba(15,28,63,0.25)]">
               <div className="text-[12px] uppercase tracking-[1.5px] text-[#c7d3ea]">
-                내가 떠나본 여행지 수
+                내가 가고 싶은 여행지 수
               </div>
-              <div className="mt-3 text-[36px] font-semibold">24</div>
+              <div className="mt-3 text-[36px] font-semibold">{favoriteCount}</div>
               <div className="mt-4 border-t border-white/20 pt-3 text-[12px] text-[#c7d3ea]">
-                Tripick과 함께한 이후로.
+                Tripick.
               </div>
             </div>
 
