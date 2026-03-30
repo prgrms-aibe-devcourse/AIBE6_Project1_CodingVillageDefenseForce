@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<img src="./banner.png" alt="Tripick Banner" width="100%" />
 
-## Getting Started
+# Tripick 🌿
+**테마 기반 국내 여행지 큐레이션 서비스**
+> 힐링, 맛집, 야경 등 원하는 여행 테마를 선택하면 딱 맞는 여행지를 추천해드려요.
+<br />
 
-First, run the development server:
+## 기술 스택
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| 구분 | 기술 |
+|------|------|
+| Framework | Next.js 16, React 19 |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| Backend / DB | Supabase (Auth, Database) |
+| AI | Google Generative AI (Gemini) |
+| Map | Kakao Maps API |
+| Deploy | Vercel |
+
+<br />
+
+## 주요 기능
+
+### 🗺 여행지 탐색
+- 테마 카드(힐링, 액티비티, 감성 카페, 맛집, 야경 등)로 여행 스타일 선택
+- 지역·태그·정렬 기준(평점순, 리뷰 많은 순)으로 여행지 필터링
+- 여행지 상세 페이지에서 카카오맵 위치 확인 및 리뷰 조회
+
+### ❤️ 위시리스트
+- 마음에 드는 여행지를 즐겨찾기에 추가/제거
+- 마이페이지에서 내 위시리스트 한눈에 확인
+
+### 🗓 여행 플래너
+- 나만의 플랜 생성·수정·삭제
+- 플랜에 여행지 추가/제거
+- 선택한 장소들을 카카오맵으로 한 번에 확인
+
+### 🤖 AI 여행 추천 채팅
+- 사이드바 플로팅 버튼으로 언제든 AI에게 질문
+- 여행지·숙소·꿀팁 등 자유롭게 추천 요청
+- 여행지 상세에서 장소에 맞는 맞춤 질문 자동 제안
+
+### 👤 회원 기능
+- 이메일/비밀번호 회원가입 및 로그인
+- 닉네임 변경
+- 비밀번호 재설정 메일 발송
+- 회원 탈퇴
+
+<br />
+
+## 프로젝트 구조
+
+```
+src/
+├── app/
+│   ├── (auth)/           # 로그인·회원가입 페이지
+│   ├── auth/             # Supabase 콜백, 회원탈퇴 API
+│   └── main/
+│       ├── page.tsx      # 홈 (테마 선택)
+│       ├── subpage/      # 여행지 목록·필터
+│       ├── detail/       # 여행지 상세 + 카카오맵
+│       ├── favorites/    # 위시리스트
+│       ├── planner/      # 여행 플래너
+│       └── mypage/       # 마이페이지
+├── components/
+│   ├── auth/             # MainAuthGate, 로그인/회원가입 폼
+│   ├── layout/           # Sidebar, Header
+│   ├── ai/               # AI 채팅 모달
+│   ├── home/             # 테마 카드 그리드
+│   ├── subpage/          # 여행지 목록 컴포넌트
+│   └── detail_review/    # 리뷰 컴포넌트
+└── lib/
+    ├── supabase/         # Supabase 클라이언트 (server/client 분리)
+    └── api/              # AI 추천 API 라우트
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+<br />
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 시작하기
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 환경 변수 설정
 
-## Learn More
+프로젝트 루트에 `.env.local` 파일을 생성하고 아래 값을 채워주세요.
 
-To learn more about Next.js, take a look at the following resources:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+NEXT_PUBLIC_KAKAO_MAP_API_KEY=your_kakao_map_api_key
+GEMINI_API_KEY=your_gemini_api_key
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 설치 및 실행
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+# 패키지 설치
+npm install
 
-## Deploy on Vercel
+# 개발 서버 실행
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+http://localhost:3000 에서 확인할 수 있어요.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# 빌드
+npm run build
+```
+
+<br />
+
+## 팀원
+
+| 이름 | 역할 |
+|------|------|
+| 정연수 | 서브 페이지 (태그 검색 결과, 상세 페이지 이동) / 마이페이지 (내가 작성한 리뷰) / 데이터베이스 설계 (ERD) |
+| 김락현 | 여행 플래너 (DB 연동, 회원별) / 상세 페이지 (장소 이미지 및 설명) |
+| 김현승 | AI 추천 (Gemini API) / 상세 페이지 (지도, 리뷰 작성·삭제) (Kakao Map API) |
+| 송민혁 | 메인 페이지 (태그 선택, 검색, 즐겨찾기) / 여행 플래너 |
+| 정민혁 | 회원가입 / 로그인 / 로그아웃 / 마이페이지 (회원 정보, 닉네임 및 비밀번호 재설정, 회원 탈퇴) |
