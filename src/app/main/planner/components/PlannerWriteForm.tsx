@@ -74,14 +74,24 @@ export default function PlannerWriteForm({
                 <input
                   type="date"
                   value={formData.startDate}
-                  onChange={(e) => onUpdate('startDate', e.target.value)}
+                  onChange={(e) => {
+                    onUpdate('startDate', e.target.value)
+                    if (e.target.value && formData.endDate) {
+                      onToggleDatePicker()
+                    }
+                  }}
                   className="border border-gray-200 rounded-lg p-2 text-sm outline-none focus:border-[#38D4BA]"
                 />
                 <span className="self-center text-gray-400">~</span>
                 <input
                   type="date"
                   value={formData.endDate}
-                  onChange={(e) => onUpdate('endDate', e.target.value)}
+                  onChange={(e) => {
+                    onUpdate('endDate', e.target.value)
+                    if (formData.startDate && e.target.value) {
+                      onToggleDatePicker()
+                    }
+                  }}
                   className="border border-gray-200 rounded-lg p-2 text-sm outline-none focus:border-[#38D4BA]"
                 />
               </div>
