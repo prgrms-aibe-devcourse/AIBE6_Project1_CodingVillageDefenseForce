@@ -6,6 +6,8 @@ import { Suspense, useState } from 'react'
 
 interface HeaderProps {
   placeholder?: string
+  title?: string
+  showSearch?: boolean
 }
 
 function HeaderContent({

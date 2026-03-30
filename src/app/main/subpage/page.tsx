@@ -28,9 +28,14 @@ function SubPageContent() {
   const [tags, setTags] = useState<Tag[]>([])
   const [places, setPlaces] = useState<Place[]>([])
   const [selectedTags, setSelectedTags] = useState<string[]>([])
+  // wishList 등록을 위한 유저 정보
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
-  const [locations, setLocations] = useState<Location[]>([])
+  // 전체 지역 필터 출력용 State
+  const [location, setLocation] = useState<Location[]>([])
+  // filter 를 위한(값 비교 등) State
   const [selectedRegion, setSelectedRegion] = useState('전체')
+
+  const sortOptions = ['거리순', '평점순', '리뷰 많은 순']
   const [selectedSort, setSelectedSort] = useState('거리순')
   const [showFilter, setShowFilter] = useState(false)
   const [searchQuery, setSearchQuery] = useState(
