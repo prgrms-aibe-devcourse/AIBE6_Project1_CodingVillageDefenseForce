@@ -1,4 +1,4 @@
-<img src="./banner.png" alt="Tripick Banner" width="100%" />
+<img src="public/banner.png" alt="Tripick Banner" width="100%" />
 
 # Tripick 🌿
 **테마 기반 국내 여행지 큐레이션 서비스**
@@ -55,6 +55,7 @@ src/
 ├── app/
 │   ├── (auth)/           # 로그인·회원가입 페이지
 │   ├── auth/             # Supabase 콜백, 회원탈퇴 API
+│   └── api/              # API 
 │   └── main/
 │       ├── page.tsx      # 홈 (테마 선택)
 │       ├── subpage/      # 여행지 목록·필터
@@ -71,7 +72,7 @@ src/
 │   └── detail_review/    # 리뷰 컴포넌트
 └── lib/
     ├── supabase/         # Supabase 클라이언트 (server/client 분리)
-    └── api/              # AI 추천 API 라우트
+    └── api/              # API 라우트
 ```
 
 <br />
