@@ -35,8 +35,8 @@ function SubPageContent() {
   // filter 를 위한(값 비교 등) State
   const [selectedRegion, setSelectedRegion] = useState('전체')
 
-  const sortOptions = ['거리순', '평점순', '리뷰 많은 순']
-  const [selectedSort, setSelectedSort] = useState('거리순')
+  const sortOptions = ['평점순', '리뷰 많은 순']
+  const [selectedSort, setSelectedSort] = useState('평점순')
   const [showFilter, setShowFilter] = useState(false)
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get('query') ?? '',

@@ -70,7 +70,7 @@ export async function getImages(keyword: string): Promise<StandardImage[]> {
       return naverData.items.map((img: any, index: number) => ({
         id: `naver-${index}`,
         // link는 핫링크 방지로 안뜨는 경우도 있어 thumbnail 사용
-        url: img.thumbnail,
+        url: img.link || img.thumbnail,
         // HTML 태그 제거
         alt: img.title.replace(/(<([^>]+)>)/gi, ''),
       }))

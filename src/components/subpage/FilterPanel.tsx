@@ -19,7 +19,7 @@ interface FilterPanelProps {
   onSelectSort: (sort: string) => void
 }
 
-const SORT_OPTIONS = ['거리순', '평점순', '리뷰 많은 순']
+const SORT_OPTIONS = ['평점순', '리뷰 많은 순']
 
 export default function FilterPanel({
   tags,
