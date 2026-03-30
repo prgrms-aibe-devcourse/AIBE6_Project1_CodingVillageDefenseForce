@@ -97,7 +97,7 @@ export default function AIChatModal({ place, tag }: Props) {
     setIsLoading(true)
 
     try {
-      const res = await fetch('/ai/recommend', {
+      const res = await fetch('/api/ai/recommend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userInput: trimmed }),
@@ -175,17 +175,17 @@ export default function AIChatModal({ place, tag }: Props) {
                 key={i}
                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                { <div
-                  className={`max-w-[75%] rounded-2xl px-4 py-2 text-[0.88rem] leading-none whitespace-pre-wrap ${
-                    msg.role === 'user'
-                      ? 'bg-[#37d2c6] text-white'
-                      : 'bg-[#f4f6fa] text-[#13294b]'
-                  }`}
-                >
-                 <ReactMarkdown>
-                  {msg.text}
-                </ReactMarkdown>
-                </div> }
+                {
+                  <div
+                    className={`max-w-[75%] rounded-2xl px-4 py-2 text-[0.88rem] leading-none whitespace-pre-wrap ${
+                      msg.role === 'user'
+                        ? 'bg-[#37d2c6] text-white'
+                        : 'bg-[#f4f6fa] text-[#13294b]'
+                    }`}
+                  >
+                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                  </div>
+                }
               </div>
             ))}
             {isLoading && (
