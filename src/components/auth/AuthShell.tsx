@@ -28,8 +28,27 @@ export default function AuthShell({
   ] as const
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-white px-6 py-10 text-[#13294b] sm:px-10 lg:px-12 lg:py-14">
-      <div className="grid w-full max-w-[840px] overflow-hidden rounded-[22px] border border-[#e9e4da] bg-[#f7f3ec] shadow-[0_14px_26px_rgba(15,23,42,0.07),0_30px_72px_rgba(15,23,42,0.16)] lg:min-h-[520px] lg:grid-cols-[0.9fr_1.1fr]">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5f0e8] px-6 py-10 text-[#13294b] sm:px-10 lg:px-12 lg:py-14">
+      {/* 온보딩 배경과 통일 */}
+      <div className="absolute inset-0 z-0 grid grid-cols-2 grid-rows-2 gap-1.5 p-1.5">
+        {[
+          'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=70',
+          'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=70',
+          'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&q=70',
+          'https://images.unsplash.com/photo-1491557345352-5929e343eb89?w=600&q=70',
+        ].map((src) => (
+          <div
+            key={src}
+            className="rounded-2xl bg-cover bg-center opacity-55"
+            style={{ backgroundImage: `url('${src}')` }}
+          />
+        ))}
+      </div>
+
+      {/* 배경 오버레이 */}
+      <div className="absolute inset-0 z-10 bg-gradient-to-br from-[#f5f0e8]/30 via-[#f5f0e8]/55 to-[#f5f0e8]/30" />
+
+      <div className="relative z-20 grid w-full max-w-[840px] overflow-hidden rounded-[22px] border border-[#e9e4da] bg-[#f7f3ec] shadow-[0_14px_26px_rgba(15,23,42,0.07),0_30px_72px_rgba(15,23,42,0.16)] lg:min-h-[520px] lg:grid-cols-[0.9fr_1.1fr]">
         <section className="relative overflow-hidden bg-[#13244a]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(85,255,237,0.12),_transparent_32%),linear-gradient(180deg,rgba(14,28,61,0.84),rgba(12,22,48,0.96))]" />
           <div className="absolute inset-0 opacity-25">
