@@ -31,11 +31,9 @@ export default function DetailReview({
     const diff = Math.floor(
       (Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24),
     )
-
     if (diff < 1) return '오늘'
     if (diff < 7) return `${diff} 일 전`
     if (diff < 30) return `${Math.floor(diff / 7)} 주 전`
-
     return dateStr
   }
 
@@ -46,7 +44,7 @@ export default function DetailReview({
 
   const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const { data, error } = await supabase.from('review').insert({
+    const { error } = await supabase.from('review').insert({
       place_id: placeId,
       user_id: userId,
       location: searchTerm,
@@ -59,35 +57,49 @@ export default function DetailReview({
       alert('리뷰 작성이 안되었습니다.')
     } else {
       setIsWrite(false)
+      setComment('')
+      setRating(0)
       fetchReview()
     }
   }
 
   const handleRemoveData = async (id: number) => {
-    const { data, error } = await supabase.from('review').delete().eq('id', id)
-
-    try {
+    const { error } = await supabase.from('review').delete().eq('id', id)
+    if (error) {
+      console.error(error)
+    } else {
       alert('정상 처리 되었습니다.')
       fetchReview()
-    } catch (error) {
-      console.error(error)
     }
   }
 
   const fetchReview = async () => {
-    const { data: review, error } = await supabase
+    const { data, error } = await supabase
       .from('review')
       .select('*, user(display_name)')
       .eq('place_id', placeId)
-    setReview(review || [])
+    if (!error) setReview(data || [])
   }
 
+  // 🔥 에러가 발생하던 useEffect 구간 수정
   useEffect(() => {
     fetchReview()
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data }) => {
-      setAuthUser(data.user)
-    })
+
+    async function loadUser() {
+      const client = createClient() // 클라이언트 생성
+      const { data, error } = await client.auth.getUser()
+      
+      if (error) {
+        console.error('유저 정보를 가져오는데 실패했습니다:', error.message)
+        return
+      }
+
+      if (data?.user) {
+        setAuthUser(data.user)
+      }
+    }
+
+    loadUser()
   }, [])
 
   const currentReviews = review.slice(startIdx, startIdx + itemPage)
@@ -101,56 +113,39 @@ export default function DetailReview({
       >
         모두 보기
       </button>
+      
       {isOpen && (
         <div className={styles.overlay} onClick={() => setIsOpen(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            {/* 헤더 */}
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-xl font-bold text-[#222]">방문자 리뷰</h2>
-              <button
-                className="text-[#999] hover:text-[#333] text-lg font-medium"
-                onClick={() => setIsOpen(false)}
-              >
-                ✕
-              </button>
+              <button onClick={() => setIsOpen(false)} className="text-[#999] hover:text-[#333]">✕</button>
             </div>
 
             {isWrite ? (
-              /* 리뷰 작성 폼 */
               <form className="flex flex-col gap-3" onSubmit={handleOnSubmit}>
                 <input
                   placeholder="이름"
-                  className="border border-[#e8e6e0] rounded-lg px-4 py-2.5 text-sm text-[#333] outline-none focus:border-[#007A6B]"
-                  value={authUser?.user_metadata?.name}
+                  className="border border-[#e8e6e0] rounded-lg px-4 py-2.5 text-sm outline-none"
+                  value={authUser?.user_metadata?.display_name || authUser?.user_metadata?.name || ''}
                   readOnly
                 />
-
-                <div
-                  className="flex gap-1"
-                  onMouseLeave={() => setHoverRating(0)}
-                >
-                  <h3 className="text-black">리뷰 별점 </h3>
+                <div className="flex gap-1 items-center" onMouseLeave={() => setHoverRating(0)}>
+                  <h3 className="text-sm mr-2 text-black">리뷰 별점</h3>
                   {Array.from({ length: 5 }, (_, i) => {
                     const activeRating = hoverRating || rating
                     const full = i + 1 <= activeRating
                     const half = i < activeRating && activeRating < i + 1
                     return (
                       <span
-                        onMouseMove={(e) => {
-                          mouseRatingHalf(e, i)
-                        }}
                         key={i}
-                        className={'relative cursor-pointer text-xl'}
-                        onClick={() => setRating(hoverRating)}
+                        onMouseMove={(e) => mouseRatingHalf(e, i)}
+                        onClick={() => setRating(hoverRating || rating)}
+                        className="relative cursor-pointer text-2xl"
                       >
-                        <span className="text=[#ddd]"> ★</span>
+                        <span className="text-[#ddd]">★</span>
                         {(full || half) && (
-                          <span
-                            className="absolute inset-0 overflow-hidden text-[#E74C3C]"
-                            style={{ width: full ? '100%' : '50%' }}
-                          >
-                            ★
-                          </span>
+                          <span className="absolute inset-0 overflow-hidden text-[#E74C3C]" style={{ width: full ? '100%' : '50%' }}>★</span>
                         )}
                       </span>
                     )
@@ -161,111 +156,46 @@ export default function DetailReview({
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="리뷰 내용을 입력해주세요"
                   rows={5}
-                  className="border border-[#e8e6e0] rounded-lg px-4 py-2.5 text-sm text-[#333] outline-none focus:border-[#007A6B] resize-none"
+                  className="border border-[#e8e6e0] rounded-lg px-4 py-2.5 text-sm resize-none"
                 />
                 <div className="flex gap-2 justify-end mt-1">
-                  <button
-                    type="button"
-                    onClick={() => setIsWrite(false)}
-                    className="px-4 py-2 rounded-lg text-sm text-[#666] border border-[#e8e6e0] hover:bg-[#f7f6f3]"
-                  >
-                    취소
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 rounded-lg text-sm text-white bg-[#007A6B] hover:bg-[#005f54]"
-                  >
-                    제출
-                  </button>
+                  <button type="button" onClick={() => setIsWrite(false)} className="px-4 py-2 text-sm border rounded-lg">취소</button>
+                  <button type="submit" className="px-4 py-2 text-sm bg-[#007A6B] text-white rounded-lg">제출</button>
                 </div>
               </form>
             ) : (
               <>
-                {/* 리뷰 목록 */}
-                <ul className="flex flex-col gap-3 pr-1">
+                <ul className="flex flex-col gap-3 overflow-y-auto max-h-[400px]">
                   {currentReviews.map((item) => (
                     <li key={item.id} className="bg-[#F4F6F6] rounded-2xl p-5">
                       <div className="flex items-center gap-3 mb-2">
                         <div className="w-9 h-9 bg-gray-300 rounded-full" />
                         <div>
-                          <p className="text-sm font-bold text-[#333]">
-                            {item.user.display_name}
-                          </p>
-                          {Array.from({ length: 5 }, (_, i) => {
-                            const full = i + 1 <= item.rating
-                            const half = i < item.rating && item.rating < i + 1
-                            return (
-                              <span key={i} className="relative inline-block">
-                                <span className="text-[#ddd]">★</span>
-                                {(full || half) && (
-                                  <span
-                                    className="absolute inset-0 overflow-hidden text-[#E74C3C]"
-                                    style={{ width: full ? '100%' : '50%' }}
-                                  >
-                                    ★
-                                  </span>
-                                )}
-                              </span>
-                            )
-                          })}
+                          <p className="text-sm font-bold">{item.user?.display_name || '익명'}</p>
+                          <div className="flex">
+                            {Array.from({ length: 5 }, (_, i) => (
+                                <span key={i} className="relative text-sm">
+                                    <span className="text-[#ddd]">★</span>
+                                    {(i + 1 <= item.rating) && <span className="absolute inset-0 text-[#E74C3C]">★</span>}
+                                </span>
+                            ))}
+                          </div>
                         </div>
-                        <span className="ml-auto text-xs text-[#999]">
-                          {formatDate(item.created_at)}
-                        </span>
+                        <span className="ml-auto text-xs text-[#999]">{formatDate(item.created_at)}</span>
                       </div>
                       <div className="flex justify-between items-end">
-                        <p className="text-sm text-[#666] leading-relaxed">
-                          {item.content}
-                        </p>
-                        <button
-                          onClick={() => handleRemoveData(item.id)}
-                          className="text-xs text-[#999] hover:text-[#E74C3C] border border-[#e8e6e0] hover:border-[#E74C3C] rounded-lg px-2 py-1 transition"
-                        >
-                          삭제
-                        </button>
+                        <p className="text-sm text-[#666]">{item.content}</p>
+                        <button onClick={() => handleRemoveData(item.id)} className="text-xs text-[#999] border rounded-lg px-2 py-1">삭제</button>
                       </div>
                     </li>
                   ))}
                 </ul>
-
-                {/* 페이지네이션 */}
-                <div className="flex items-center justify-center gap-2 mt-4">
-                  <button
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage((p) => p - 1)}
-                    className="px-3 py-1.5 rounded-lg text-sm border border-[#e8e6e0] text-[#666] hover:bg-[#f7f6f3] disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    ‹ 이전
-                  </button>
+                <div className="flex justify-center gap-2 mt-4">
                   {Array.from({ length: totalPages }, (_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setCurrentPage(i + 1)}
-                      className={`w-8 h-8 rounded-lg text-sm ${
-                        currentPage === i + 1
-                          ? 'bg-[#007A6B] text-white font-bold'
-                          : 'text-[#666] hover:bg-[#f7f6f3]'
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
+                    <button key={i} onClick={() => setCurrentPage(i + 1)} className={`w-8 h-8 rounded-lg ${currentPage === i + 1 ? 'bg-[#007A6B] text-white' : 'text-[#666]'}`}>{i + 1}</button>
                   ))}
-                  <button
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage((p) => p + 1)}
-                    className="px-3 py-1.5 rounded-lg text-sm border border-[#e8e6e0] text-[#666] hover:bg-[#f7f6f3] disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    다음 ›
-                  </button>
                 </div>
-
-                {/* 리뷰 작성 버튼 */}
-                <button
-                  className="mt-4 w-full py-2.5 rounded-xl text-sm font-bold text-white bg-[#007A6B] hover:bg-[#005f54] transition"
-                  onClick={() => setIsWrite(true)}
-                >
-                  리뷰 작성하기
-                </button>
+                <button className="mt-4 w-full py-2.5 rounded-xl font-bold text-white bg-[#007A6B]" onClick={() => setIsWrite(true)}>리뷰 작성하기</button>
               </>
             )}
           </div>
