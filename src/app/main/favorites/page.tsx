@@ -122,15 +122,13 @@ export default function FavoritesPage() {
               완벽한 여행 계획이 필요하신가요?
             </h3>
             <p className="text-[13px] leading-relaxed text-white/55">
-              저장한 장소들을 바탕으로 최적의 동선을 AI가 추천해 드립니다.
-              <br />
               지금 바로 플래너를 시작해보세요.
             </p>
           </div>
           {/* 플래너로 보내기 → 플래너 페이지 이동 */}
           <Link
             href="/main/planner"
-            className="flex-shrink-0 rounded-full bg-[#1D9E75] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-[#0F6E56] whitespace-nowrap"
+            className="flex-shrink-0 rounded-full bg-[#00BFA5] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-[#0F6E56] whitespace-nowrap"
           >
             플래너로 보내기
           </Link>

@@ -89,7 +89,7 @@ export default function HomePage() {
               <span
                 key={id}
                 onClick={() => toggle(id)}
-                className="flex cursor-pointer items-center gap-1.5 rounded-full bg-[#1D9E75] px-3 py-1.5 text-[12px] text-white transition-colors hover:bg-[#0F6E56]"
+                className="flex cursor-pointer items-center gap-1.5 rounded-full bg-[#00BFA5] px-3 py-1.5 text-[12px] text-white transition-colors hover:bg-[#0F6E56]"
               >
                 {theme?.emoji} {theme?.label}
                 <span className="text-[13px] opacity-80">×</span>
@@ -131,7 +131,7 @@ export default function HomePage() {
             const tags = [...selected].join(',')
             router.push(`/main/subpage?tags=${tags}` as any)
           }}
-          className="flex items-center gap-1.5 rounded-full bg-[#1D9E75] px-7 py-3 text-[14px] font-medium text-white transition-all hover:bg-[#0F6E56] hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:bg-[#ccc] disabled:translate-y-0"
+          className="flex items-center gap-1.5 rounded-full bg-[#00BFA5] px-7 py-3 text-[14px] font-medium text-white transition-all hover:bg-[#0F6E56] hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:bg-[#ccc] disabled:translate-y-0"
         >
           추천받기
           <svg

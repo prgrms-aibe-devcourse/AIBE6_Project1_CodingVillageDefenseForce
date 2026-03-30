@@ -57,7 +57,7 @@ function HeaderContent({
       </div>
       <button
         onClick={handleSearch}
-        className="rounded-xl bg-[#1D9E75] px-4 py-2.5 text-[13px] font-medium text-white hover:bg-[#0F6E56] transition"
+        className="rounded-xl bg-[#00BFA5] px-4 py-2.5 text-[13px] font-medium text-white hover:bg-[#0F6E56] transition"
       >
         검색
       </button>
