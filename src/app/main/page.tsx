@@ -20,18 +20,17 @@ const EMOJI_MAP: Record<string, string> = {
 
 // 이미지 매핑
 const IMAGE_MAP: Record<string, string> = {
-  힐링: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=60',
+  힐링: 'https://images.unsplash.com/photo-1670211355728-96863bd9803f?w=800&q=80',
   액티비티:
-    'https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&q=60',
+    'https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=800&q=80',
   '감성 카페':
-    'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&q=60',
-  맛집: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=60',
-  야경: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=60',
-  자연: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=60',
-  쇼핑: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400&q=60',
-  문화: 'https://images.unsplash.com/photo-1481833761820-0509d3217039?w=400&q=60',
+    'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&q=80',
+  맛집: 'https://images.unsplash.com/photo-1709433421859-2ecb831b6eb3?w=800&q=80',
+  야경: 'https://images.unsplash.com/photo-1704545007536-e96a57691e08?w=800&q=80',
+  자연: 'https://images.unsplash.com/photo-1420593248178-d88870618ca0?w=800&q=80',
+  쇼핑: 'https://images.unsplash.com/photo-1481437156560-3205f6a55735?w=800&q=80',
+  문화: 'https://images.unsplash.com/photo-1711017791515-871d74b83286?w=800&q=80',
 }
-
 export default function HomePage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [themes, setThemes] = useState<
