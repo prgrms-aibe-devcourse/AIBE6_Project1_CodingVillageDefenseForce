@@ -74,7 +74,7 @@ export default function ReviewCard({ obj, handleOnDelete, formatDate }: Props) {
               </span>
             </div>
             <Link
-              href={`/main/detail?/id=${obj.place.id}&placeName=${obj.place.title}&location=${obj.place.location}`}
+              href={`/main/detail?id=${obj.place.id}&placeName=${obj.place.title}&location=${obj.place.location}`}
               className="text-xs font-semibold text-gray-700 uppercase tracking-widest hover:text-[#1D9E75]"
             >
               View Place
