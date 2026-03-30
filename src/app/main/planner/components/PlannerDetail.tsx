@@ -139,7 +139,12 @@ export default function PlannerDetail({
         onClose={() => setIsModalOpen(false)}
         availablePlaces={availablePlaces}
         onAdd={(place) => {
-          onAddPlace(place)
+          const fullPlace: Place = {
+            ...place,
+            content: (place as any).content || '',
+            location_id: (place as any).location_id || 0,
+          }
+          onAddPlace(fullPlace)
           setIsModalOpen(false)
         }}
       />
