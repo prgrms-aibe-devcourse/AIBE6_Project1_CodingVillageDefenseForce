@@ -124,6 +124,8 @@ export default function Sidebar() {
         }
         if (data?.avatar_url) {
           setAvatarUrl(data.avatar_url)
+        } else {
+          setAvatarUrl('https://img.icons8.com/material-sharp/48/user.png')
         }
       }
     }
@@ -227,6 +229,10 @@ export default function Sidebar() {
             src={avatarUrl}
             alt="프로필 이미지"
             className="h-8 w-8 flex-shrink-0 rounded-full object-cover"
+            onError={(event) => {
+              event.currentTarget.src =
+                'https://img.icons8.com/material-sharp/48/user.png'
+            }}
           />
           <div className="text-left">
             <p className="text-[13px] font-medium text-[#2c2c2a]">
