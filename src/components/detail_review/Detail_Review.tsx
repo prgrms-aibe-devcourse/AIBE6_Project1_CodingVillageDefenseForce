@@ -120,7 +120,10 @@ export default function DetailReview({
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-xl font-bold text-[#222]">방문자 리뷰</h2>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false)
+                  window.location.reload()
+                }}
                 className="text-[#999] hover:text-[#333]"
               >
                 ✕
@@ -179,7 +182,7 @@ export default function DetailReview({
                   <button
                     type="button"
                     onClick={() => setIsWrite(false)}
-                    className="px-4 py-2 text-sm border rounded-lg"
+                    className="px-4 py-2 text-sm border rounded-lg text-black"
                   >
                     취소
                   </button>
