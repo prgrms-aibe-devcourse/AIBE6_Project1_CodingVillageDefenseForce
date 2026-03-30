@@ -12,9 +12,9 @@ const activityItems = [
 
 const settingItems = [
   {
-    id: 'profile',
-    title: '개인정보 수정',
-    desc: '이메일, 연락처 정보를 업데이트하세요.',
+    id: 'nickname',
+    title: '닉네임 변경',
+    desc: '트리픽에서 사용할 이름을 변경합니다.',
   },
   {
     id: 'password',
@@ -22,9 +22,9 @@ const settingItems = [
     desc: '주기적인 변경으로 계정을 보호하세요.',
   },
   {
-    id: 'nickname',
-    title: '닉네임 변경',
-    desc: '커뮤니티에서 사용할 이름을 변경합니다.',
+    id: 'profile',
+    title: '회원 탈퇴',
+    desc: '트리픽을 탈퇴합니다.',
   },
 ]
 
@@ -104,15 +104,22 @@ export default function MyPage() {
     'https://img.icons8.com/material-sharp/48/user.png',
   )
   const [email, setEmail] = useState('loading. .')
+  const [userId, setUserId] = useState<string | null>(null)
+  // 닉네임 변경 모달 상태
+  const [isNicknameOpen, setIsNicknameOpen] = useState(false)
+  const [nicknameInput, setNicknameInput] = useState('')
+  const [isSavingNickname, setIsSavingNickname] = useState(false)
+  const [nicknameError, setNicknameError] = useState('')
+  // 회원탈퇴 모달 상태
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [deleteInput, setDeleteInput] = useState('')
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   // 활동 항목 클릭 시 이동 경로 처리
   const handleActivityClick = (id: string) => {
     if (id === 'views') {
       router.push('/main/favorites')
-      return
-    }
-    if (id === 'reviews') {
-      router.push('/main/mypage/myreviews')
       return
     }
   }
@@ -126,6 +133,7 @@ export default function MyPage() {
       } = await supabase.auth.getUser()
 
       if (!user) return
+      setUserId(user.id)
 
       const { data, error } = await supabase
         .from('user')
@@ -134,15 +142,13 @@ export default function MyPage() {
         .single()
 
       if (!error) {
-        if (data?.display_name) {
-          setDisplayName(data.display_name)
-        }
+        if (data?.display_name) setDisplayName(data.display_name)
         if (data?.avatar_url) {
           setAvatarUrl(data.avatar_url)
+        } else {
+          setAvatarUrl('https://img.icons8.com/material-sharp/48/user.png')
         }
-        if (data?.email) {
-          setEmail(data.email)
-        }
+        if (data?.email) setEmail(data.email)
       }
     }
 
@@ -156,30 +162,111 @@ export default function MyPage() {
   }
 
   const handleSettingClick = async (id: string) => {
-    if (id !== 'password') return
+    if (id === 'password') {
+      // 이메일이 세션에 있다면 그걸 사용
+      if (!email) {
+        alert('이메일 정보를 불러오지 못했습니다.')
+        return
+      }
 
-    // 이메일이 세션에 있다면 그걸 사용
-    if (!email) {
-      alert('이메일 정보를 불러오지 못했습니다.')
+      const supabase = createClient()
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset`,
+      })
+
+      if (error) {
+        alert('재설정 메일 전송 실패: ' + error.message)
+        return
+      }
+
+      alert('비밀번호 재설정 메일을 보냈어요.')
       return
     }
+
+    if (id === 'nickname') {
+      // 닉네임 변경 모달 열기
+      setNicknameError('')
+      setNicknameInput(displayName === '불러오는 중' ? '' : displayName)
+      setIsNicknameOpen(true)
+      return
+    }
+
+    if (id === 'profile') {
+      // 회원탈퇴 모달 열기
+      setDeleteInput('')
+      setDeleteError('')
+      setIsDeleteOpen(true)
+      return
+    }
+    return
+  }
+
+  // 닉네임 저장
+  const handleNicknameSave = async () => {
+    const nextName = nicknameInput.trim()
+    if (!nextName) {
+      setNicknameError('닉네임을 입력해주세요.')
+      return
+    }
+    if (!userId) {
+      setNicknameError('유저 정보를 불러오지 못했습니다.')
+      return
+    }
+
+    setIsSavingNickname(true)
+    setNicknameError('')
 
     const supabase = createClient()
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset`,
-    })
+    const { error } = await supabase
+      .from('user')
+      .update({ display_name: nextName })
+      .eq('uid', userId)
 
     if (error) {
-      alert('재설정 메일 전송 실패: ' + error.message)
+      setNicknameError('닉네임 변경에 실패했습니다.')
+      setIsSavingNickname(false)
       return
     }
 
-    alert('비밀번호 재설정 메일을 보냈어요.')
+    const { error: authError } = await supabase.auth.updateUser({
+      data: { name: nextName, full_name: nextName },
+    })
+
+    if (authError) {
+      setNicknameError('프로필 업데이트에 실패했습니다.')
+      setIsSavingNickname(false)
+      return
+    }
+
+    setDisplayName(nextName)
+    setIsSavingNickname(false)
+    setIsNicknameOpen(false)
+  }
+
+  const handleDeleteAccount = async () => {
+    if (deleteInput !== '탈퇴합니다') {
+      setDeleteError("'탈퇴합니다'를 정확히 입력해주세요.")
+      return
+    }
+
+    setIsDeletingAccount(true)
+    setDeleteError('')
+
+    const res = await fetch('/auth/delete-account', { method: 'DELETE' })
+    const result = await res.json()
+
+    if (!res.ok) {
+      setDeleteError(result.error ?? '탈퇴 처리 중 오류가 발생했습니다.')
+      setIsDeletingAccount(false)
+      return
+    }
+
+    router.push('/')
   }
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      {/* 공용 헤더 사용, 검색바 숨김 */}
+      {/* 공통 레이아웃 헤더 사용, 마이페이지에선 검색바 숨김 */}
       <Header title="My Page" showSearch={false} />
       <main className="flex-1 overflow-y-auto bg-[#f7f6f3] px-7 py-7">
         {/* 상단 카드 영역 */}
@@ -194,6 +281,10 @@ export default function MyPage() {
                         src={avatarUrl}
                         alt="프로필 이미지"
                         className="h-full w-full object-cover"
+                        onError={(event) => {
+                          event.currentTarget.src =
+                            'https://img.icons8.com/material-sharp/48/user.png'
+                        }}
                       />
                     </div>
                   </div>
@@ -258,11 +349,13 @@ export default function MyPage() {
                   {settingItems.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between rounded-xl px-4 py-3 transition hover:bg-[#f7f6f3]"
+                      className="flex items-center justify-between rounded-xl px-4 py-3 transition hover:bg-[#f7f6f3] cursor-pointer"
                       onClick={() => handleSettingClick(item.id)}
                     >
                       <div>
-                        <div className="text-[14px] font-medium text-[#2c2c2a]">
+                        <div
+                          className={`text-[14px] font-medium ${item.id === 'profile' ? 'text-[#d14c3f]' : 'text-[#2c2c2a]'}`}
+                        >
                           {item.title}
                         </div>
                         <div className="mt-1 text-[12px] text-[#9a9893]">
@@ -316,6 +409,94 @@ export default function MyPage() {
           </div>
         </div>
       </main>
+
+      {/* 닉네임 변경 모달 */}
+      {isNicknameOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
+          <div className="w-full max-w-[420px] rounded-2xl bg-white p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
+            <div className="text-[16px] font-semibold text-[#2c2c2a]">
+              닉네임 변경
+            </div>
+            <p className="mt-2 text-[12px] text-[#8a8a87]">
+              트리픽에서 사용할 닉네임을 입력해주세요.
+            </p>
+            <input
+              type="text"
+              value={nicknameInput}
+              onChange={(event) => setNicknameInput(event.target.value)}
+              className="mt-4 w-full rounded-xl border border-[#e8e6e0] bg-[#f7f6f3] px-3 py-2 text-[13px] text-[#2c2c2a] outline-none"
+              placeholder="새 닉네임"
+            />
+            {nicknameError ? (
+              <p className="mt-2 text-[12px] text-[#d14c3f]">{nicknameError}</p>
+            ) : null}
+            <div className="mt-5 flex gap-2">
+              <button
+                type="button"
+                className="flex-1 rounded-xl border border-[#e8e6e0] px-3 py-2 text-[13px] text-[#2c2c2a]"
+                onClick={() => setIsNicknameOpen(false)}
+                disabled={isSavingNickname}
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                className="flex-1 rounded-xl bg-[#1D9E75] px-3 py-2 text-[13px] font-semibold text-white disabled:opacity-60"
+                onClick={handleNicknameSave}
+                disabled={isSavingNickname}
+              >
+                {isSavingNickname ? '저장 중...' : '저장'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 회원탈퇴 모달 */}
+      {isDeleteOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
+          <div className="w-full max-w-[420px] rounded-2xl bg-white p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
+            <div className="text-[16px] font-semibold text-[#2c2c2a]">
+              회원 탈퇴
+            </div>
+            <p className="mt-2 text-[12px] text-[#8a8a87]">
+              탈퇴하면 모든 데이터가 삭제되며 복구할 수 없어요.
+              <br />
+              계속하려면 아래에{' '}
+              <span className="font-semibold text-[#d14c3f]">탈퇴합니다</span>를
+              입력해주세요.
+            </p>
+            <input
+              type="text"
+              value={deleteInput}
+              onChange={(e) => setDeleteInput(e.target.value)}
+              className="mt-4 w-full rounded-xl border border-[#e8e6e0] bg-[#f7f6f3] px-3 py-2 text-[13px] text-[#2c2c2a] outline-none"
+              placeholder="탈퇴합니다"
+            />
+            {deleteError && (
+              <p className="mt-2 text-[12px] text-[#d14c3f]">{deleteError}</p>
+            )}
+            <div className="mt-5 flex gap-2">
+              <button
+                type="button"
+                className="flex-1 rounded-xl border border-[#e8e6e0] px-3 py-2 text-[13px] text-[#2c2c2a]"
+                onClick={() => setIsDeleteOpen(false)}
+                disabled={isDeletingAccount}
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                className="flex-1 rounded-xl bg-[#d14c3f] px-3 py-2 text-[13px] font-semibold text-white disabled:opacity-60"
+                onClick={handleDeleteAccount}
+                disabled={isDeletingAccount}
+              >
+                {isDeletingAccount ? '처리 중...' : '탈퇴하기'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
