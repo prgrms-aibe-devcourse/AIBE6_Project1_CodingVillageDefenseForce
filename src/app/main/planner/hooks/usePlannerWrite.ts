@@ -10,7 +10,10 @@ import type { WritePlace } from '../types/planner_type'
 
 const supabase = createClient()
 
-export function usePlannerWrite(editId: string | null) {
+export function usePlannerWrite(
+  editId: string | null,
+  placeIds: string | null,
+) {
   const router = useRouter()
 
   // 폼 필드 상태
@@ -28,6 +31,24 @@ export function usePlannerWrite(editId: string | null) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [allPlaces, setAllPlaces] = useState<WritePlace[]>([])
+
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      const { data } = await supabase
+        .from('place')
+        .select('id, title, location, image')
+      setAllPlaces(data ?? [])
+    }
+    fetchPlaces()
+  }, [])
+
+  useEffect(() => {
+    if (!placeIds || allPlaces.length === 0) return
+    const ids = placeIds.split(',').map(Number)
+    const preSelected = allPlaces.filter((p) => ids.includes(p.id))
+    setSelectedPlaces(preSelected)
+  }, [placeIds, allPlaces])
 
   // 수정 모드일 때 기존 데이터 불러오기
   useEffect(() => {

@@ -67,6 +67,11 @@ export default function FavoritesPage() {
 
   const places = favorites.map((f) => ({ ...f.place, favoriteId: f.id }))
 
+  const handleSendToPlanner = () => {
+    const ids = places.map((p) => p.id).join(',')
+    router.push(`/main/planner/planner_write?placeIds=${ids}`)
+  }
+
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <Header />
@@ -115,7 +120,6 @@ export default function FavoritesPage() {
           </div>
         )}
 
-        {/* AI 플래너 배너 */}
         <div className="flex items-center justify-between gap-4 rounded-[14px] bg-[#0f1d35] px-6 py-5">
           <div>
             <h3 className="mb-1.5 text-[16px] font-medium text-white">
@@ -126,12 +130,12 @@ export default function FavoritesPage() {
             </p>
           </div>
           {/* 플래너로 보내기 → 플래너 페이지 이동 */}
-          <Link
-            href="/main/planner"
-            className="flex-shrink-0 rounded-full bg-[#00BFA5] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-[#0F6E56] whitespace-nowrap"
+          <button
+            onClick={handleSendToPlanner}
+            className="flex-shrink-0 rounded-full bg-[#1D9E75] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-[#0F6E56] whitespace-nowrap"
           >
             플래너로 보내기
-          </Link>
+          </button>
         </div>
       </div>
     </div>

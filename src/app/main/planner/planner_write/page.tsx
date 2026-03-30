@@ -10,6 +10,7 @@ import { usePlannerWrite } from '../hooks/usePlannerWrite'
 export default function PlannerWritePage() {
   const searchParams = useSearchParams()
   const editId = searchParams.get('id')
+  const placeIds = searchParams.get('placeIds')
 
   const {
     formData,
@@ -24,7 +25,7 @@ export default function PlannerWritePage() {
     isModalOpen,
     setIsModalOpen,
     getAvailablePlaces,
-  } = usePlannerWrite(editId)
+  } = usePlannerWrite(editId, placeIds)
 
   // 전체 장소 목록
   const { allPlaces } = usePlace()

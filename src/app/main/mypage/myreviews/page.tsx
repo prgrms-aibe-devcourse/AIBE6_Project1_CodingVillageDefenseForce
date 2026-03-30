@@ -1,8 +1,8 @@
 'use client'
 
-import { supabase } from '@/lib/supabase'
-import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import ReviewList from './ReviewList'
 
 interface Review {
@@ -27,14 +27,35 @@ interface Place {
 
 export default function MyReviewPage() {
   const [object, setObject] = useState<Review[]>([])
+  const supabase = createClient()
 
   const fetchObject = async () => {
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      console.log('auth user:', user) // 추가
+      if (!user) return
+
+      const { data: userData } = await supabase
+        .from('user')
+        .select('id')
+        .eq('uid', user.id)
+        .single()
+
+      console.log('userData:', userData) // 추가
+
+      if (!userData) return
+
       const { data: obj, error } = await supabase
         .from('review')
         .select(
           `id, content, rating, created_at, user(id), place(id, title, content, location, image)`,
         )
+        .eq('user_id', userData.id)
+
+      console.log('reviews:', obj, 'error:', error) // 추가
+
       if (error) throw error
       setObject(obj ?? [])
     } catch (error) {

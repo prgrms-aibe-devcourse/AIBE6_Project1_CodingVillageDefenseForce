@@ -386,7 +386,9 @@ export default function MyPage() {
               <div className="text-[12px] uppercase tracking-[1.5px] text-[#c7d3ea]">
                 내가 가고 싶은 여행지 수
               </div>
-              <div className="mt-3 text-[36px] font-semibold">{favoriteCount}</div>
+              <div className="mt-3 text-[36px] font-semibold">
+                {favoriteCount}
+              </div>
               <div className="mt-4 border-t border-white/20 pt-3 text-[12px] text-[#c7d3ea]">
                 Tripick.
               </div>
