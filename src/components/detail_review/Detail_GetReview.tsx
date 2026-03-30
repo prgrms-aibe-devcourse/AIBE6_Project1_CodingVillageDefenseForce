@@ -3,13 +3,13 @@
 import { supabase } from '@/lib/supabase'
 import { useEffect, useState } from 'react'
 
-export default function DetailGetReview() {
+export default function DetailGetReview(placeId: { place_id: Number }) {
   const [review, setReview] = useState<any[]>([])
-
   const fetchReview = async () => {
     const { data: review, error } = await supabase
       .from('review')
       .select('*, user(display_name)')
+      .eq('place_id', placeId.place_id)
       .order('created_at', { ascending: false })
       .limit(3)
     setReview(review || [])
@@ -28,12 +28,12 @@ export default function DetailGetReview() {
 
   useEffect(() => {
     fetchReview()
-  })
+  }, [])
 
   return (
     <>
       {review.map((item) => (
-        <div className="bg-[#F4F6F6] rounded-2xl p-6">
+        <div key={item.id} className="bg-[#F4F6F6] rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
             <div>

@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 interface Review {
   id: number
   rating: number
@@ -67,9 +69,13 @@ export default function PlaceCard({
               </span>
             ))}
           </div>
-          <h3 className="text-[17px] font-medium text-[#292524]">
+          <Link
+            href={`/main/detail?id=${place.id}&placeName=${encodeURIComponent(place.title)}&location=${encodeURIComponent(String(place.location))}`}
+            className="text-[17px] font-medium text-[#292524]"
+          >
             {place.title}
-          </h3>
+          </Link>
+
           <p className="text-[13px] text-gray-500 line-clamp-1">
             {place.content}
           </p>

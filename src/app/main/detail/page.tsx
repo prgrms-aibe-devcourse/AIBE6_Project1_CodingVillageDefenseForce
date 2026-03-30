@@ -1,11 +1,17 @@
 import DetailGetReview from '@/components/detail_review/Detail_GetReview'
 import DetailReview from '@/components/detail_review/Detail_Review'
 import { getDescription, getImages } from '@/lib/api/detailSearch'
+import { createClient } from '@/lib/supabase/server'
 import KakaoMap from './KakaoMap'
 
-export default async function DetailPage() {
+export default async function DetailPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ id: string; placeName: string; location: string }>
+}) {
   // TODO: 실제 서비스 시 하드 코딩 제거 -> 검색어 받아와서 처리
-  const searchTerm = '서울 한강공원' // test 검색어
+  const { id, placeName } = await searchParams
+  const searchTerm = placeName // test 검색어
 
   // 검색 정보 가져오기
   const description = await getDescription(searchTerm)
@@ -16,9 +22,47 @@ export default async function DetailPage() {
   // 나머지는 갤러리 이미지로 표현
   const galleryImages = images.slice(1, 4)
 
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const email = user?.email
+
+  const { data: userData, error } = await supabase
+    .from('user')
+    .select('*')
+    .eq('email', email)
+    .single()
+
+  const userId = userData?.id
+
+  const { data: place } = await supabase
+    .from('place')
+    .select('*')
+    .eq('title', placeName)
+    .single()
+
+  const { data: review } = await supabase
+    .from('review')
+    .select('*')
+    .eq('place_id', id)
+  const location = place?.location
+  const locationid = place?.location_id
+  const reviewPoint =
+    review && review.length > 0
+      ? review.reduce((sum, r) => sum + r.rating, 0) / review.length
+      : 0
+  const reviewCount = review?.length
+
+  const { data: tags } = await supabase
+    .from('place_tag')
+    .select('tag(category)')
+    .eq('place_id', locationid)
+
   // 화면에 검색 결과 표시
   return (
-    <div className="min-h-screen flex flex-1 flex-col bg-[#F8F9FA] pb-24 ">
+    <div className="flex flex-1 flex-col bg-[#F8F9FA]">
       {/* 1. 상단 메인 이미지 + 요약 영역 */}
       <div className="relative h-[450px] w-full">
         {/* 넓은 배경 이미지 */}
@@ -41,18 +85,23 @@ export default async function DetailPage() {
         {/* 요약 정보 카드(추후 정보 연동) */}
         <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-[90%] max-w-5xl bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.08)] p-8 z-20">
           <div className="flex items-center gap-4 mb-3">
-            <span className="bg-[#EDF2FA] text-[#4A72B2] text-xs font-extrabold px-3 py-1 rounded-full tracking-wider uppercase">
-              Nature Sanctuary
-            </span>
+            {tags?.map((t: any, index) => (
+              <span
+                key={index}
+                className="bg-[#EDF2FA] text-[#4A72B2] text-xs font-extrabold px-3 py-1 rounded-full tracking-wider uppercase"
+              >
+                #{t.tag.category}
+              </span>
+            ))}
             <span className="text-[#E74C3C] text-sm font-bold">
-              ★ 4.9 (1,240 Reviews)
+              ★ {reviewPoint?.toFixed(1) || 0.0} ( {reviewCount} Reviews)
             </span>
           </div>
 
           <h1 className="text-4xl font-extrabold text-[#222] mb-2">
             {searchTerm}
           </h1>
-          <p className="text-[#777] text-sm mb-6">📍 주소 데이터 연동 예정</p>
+          <p className="text-[#777] text-sm mb-6">📍 {location}</p>
 
           <hr className="border-[#EAEAEA] mb-6" />
 
@@ -114,11 +163,15 @@ export default async function DetailPage() {
           <section>
             <div className="flex justify-between items-end mb-6">
               <h2 className="text-2xl font-bold text-[#222]">방문자 리뷰</h2>
-              <DetailReview searchTerm={searchTerm} placeId={1} userId={2} />
+              <DetailReview
+                searchTerm={searchTerm}
+                placeId={Number(id)}
+                userId={Number(userId)}
+              />
             </div>
             <div className="flex flex-col gap-4">
-              {/* 리뷰 플레이스홀더 1 */}
-              <DetailGetReview />
+              {/*리뷰 플레이스홀더*/}
+              <DetailGetReview place_id={Number(id)} />
             </div>
           </section>
         </div>

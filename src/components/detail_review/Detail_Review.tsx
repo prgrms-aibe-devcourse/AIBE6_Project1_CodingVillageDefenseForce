@@ -78,14 +78,15 @@ export default function DetailReview({
     const { data: review, error } = await supabase
       .from('review')
       .select('*, user(display_name)')
+      .eq('place_id', placeId)
     setReview(review || [])
   }
 
   useEffect(() => {
     fetchReview()
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setAuthUser(user)
+    supabase.auth.getUser().then(({ data }) => {
+      setAuthUser(data.user)
     })
   }, [])
 
