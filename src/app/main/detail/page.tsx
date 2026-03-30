@@ -1,5 +1,6 @@
 import DetailGetReview from '@/components/detail_review/Detail_GetReview'
 import DetailReview from '@/components/detail_review/Detail_Review'
+import FavoriteButton from '@/components/detail_review/FavoriteButton'
 import { getDescription, getImages } from '@/lib/api/detailSearch'
 import { createClient } from '@/lib/supabase/server'
 import KakaoMap from './KakaoMap'
@@ -58,7 +59,7 @@ export default async function DetailPage({
   const { data: tags } = await supabase
     .from('place_tag')
     .select('tag(category)')
-    .eq('place_id', locationid)
+    .eq('place_id', id)
 
   // 화면에 검색 결과 표시
   return (
@@ -74,12 +75,7 @@ export default async function DetailPage({
 
         {/* 우측 상단 버튼 */}
         <div className="absolute top-8 right-8 flex gap-3 z-10">
-          <button className="w-12 h-12 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/50 transition">
-            🤍
-          </button>
-          <button className="w-12 h-12 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/50 transition">
-            🔗
-          </button>
+          <FavoriteButton placeId={Number(id)} />
         </div>
 
         {/* 요약 정보 카드(추후 정보 연동) */}

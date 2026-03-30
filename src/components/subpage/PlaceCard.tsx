@@ -70,12 +70,12 @@ export default function PlaceCard({
             ))}
           </div>
           <Link
-            href={`/main/detail?id=${place.id}&placeName=${encodeURIComponent(place.title)}&location=${encodeURIComponent(String(place.location))}`}
-            className="text-[17px] font-medium text-[#292524]"
+            href={`/main/detail?id=${place.id}&placeName=${place.title}&location=${place.location}`}
           >
-            {place.title}
+            <h3 className="text-[17px] font-medium text-[#292524]">
+              {place.title}
+            </h3>
           </Link>
-
           <p className="text-[13px] text-gray-500 line-clamp-1">
             {place.content}
           </p>
@@ -94,8 +94,8 @@ export default function PlaceCard({
             width="24"
             height="24"
             viewBox="0 0 24 24"
-            fill="#1D9E75"
-            stroke="#1D9E75"
+            fill="#00BFA5"
+            stroke="#00BFA5"
             strokeWidth="1.5"
           >
             <path d="M12 21C12 21 3 14 3 8a5 5 0 0110 0 5 5 0 0110 0c0 6-9 13-9 13z" />
@@ -106,7 +106,7 @@ export default function PlaceCard({
             height="24"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#1D9E75"
+            stroke="#00BFA5"
             strokeWidth="1.8"
           >
             <path d="M12 21C12 21 3 14 3 8a5 5 0 0110 0 5 5 0 0110 0c0 6-9 13-9 13z" />

@@ -2,6 +2,8 @@
 
 import Header from '@/components/layout/Header'
 import { createClient } from '@/lib/supabase/client'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 interface Place {
@@ -22,10 +24,10 @@ export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<Favorite[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
+  const router = useRouter()
 
   useEffect(() => {
     const fetchFavorites = async () => {
-      // 로그인한 유저 가져오기
       const {
         data: { user },
       } = await supabase.auth.getUser()
@@ -34,7 +36,6 @@ export default function FavoritesPage() {
         return
       }
 
-      // 내 즐겨찾기만 가져오기 (place 정보도 같이)
       const { data, error } = await supabase
         .from('favorite')
         .select('id, place_id, place(*)')
@@ -53,17 +54,14 @@ export default function FavoritesPage() {
   }, [])
 
   const remove = async (favoriteId: number) => {
-    // DB에서 삭제
     const { error } = await supabase
       .from('favorite')
       .delete()
       .eq('id', favoriteId)
-
     if (error) {
       console.error('삭제 에러:', error)
       return
     }
-    // 화면에서도 삭제
     setFavorites((prev) => prev.filter((f) => f.id !== favoriteId))
   }
 
@@ -74,7 +72,6 @@ export default function FavoritesPage() {
       <Header />
 
       <div className="flex-1 overflow-y-auto px-7 py-7">
-        {/* 헤더 */}
         <div className="mb-6 flex items-center justify-between">
           <div>
             <p className="mb-1 text-[11px] font-medium uppercase tracking-[2px] text-[#1D9E75]">
@@ -87,7 +84,6 @@ export default function FavoritesPage() {
           </span>
         </div>
 
-        {/* 카드 그리드 */}
         {loading ? (
           <div className="flex items-center justify-center py-24 text-[#bbb] text-[14px]">
             로딩 중...
@@ -131,9 +127,13 @@ export default function FavoritesPage() {
               지금 바로 플래너를 시작해보세요.
             </p>
           </div>
-          <button className="flex-shrink-0 rounded-full bg-[#1D9E75] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-[#0F6E56] whitespace-nowrap">
+          {/* 플래너로 보내기 → 플래너 페이지 이동 */}
+          <Link
+            href="/main/planner"
+            className="flex-shrink-0 rounded-full bg-[#1D9E75] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-[#0F6E56] whitespace-nowrap"
+          >
             플래너로 보내기
-          </button>
+          </Link>
         </div>
       </div>
     </div>
@@ -149,51 +149,57 @@ function PlaceCard({
   onRemove: () => void
 }) {
   return (
-    <div className="group cursor-pointer overflow-hidden rounded-[14px] border border-[#e8e6e0] bg-white transition-all hover:-translate-y-0.5 hover:shadow-2xl">
-      <div className="relative h-[180px] overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
-          style={{ backgroundImage: `url('${place.image}')` }}
-        />
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onRemove()
-          }}
-          className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-[#666] text-sm transition hover:bg-white hover:text-[#e24b4a]"
-        >
-          ×
-        </button>
-        <span className="absolute bottom-2.5 left-2.5 rounded px-2 py-0.5 text-[10px] font-medium bg-[#E1F5EE] text-[#0F6E56] tracking-[1px]">
-          {place.location}
-        </span>
-      </div>
+    // 카드 클릭 → 서브페이지 이동
+    <Link
+      href={`/main/detail?id=${place.id}&placeName=${encodeURIComponent(place.title)}&location=${encodeURIComponent(place.location)}`}
+    >
+      <div className="group cursor-pointer overflow-hidden rounded-[14px] border border-[#e8e6e0] bg-white transition-all hover:-translate-y-0.5 hover:shadow-2xl">
+        <div className="relative h-[180px] overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+            style={{ backgroundImage: `url('${place.image}')` }}
+          />
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault() // Link 이동 막기
+              onRemove()
+            }}
+            className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-[#666] text-sm transition hover:bg-white hover:text-[#e24b4a]"
+          >
+            ×
+          </button>
+          <span className="absolute bottom-2.5 left-2.5 rounded px-2 py-0.5 text-[10px] font-medium bg-[#E1F5EE] text-[#0F6E56] tracking-[1px]">
+            {place.location}
+          </span>
+        </div>
 
-      <div className="px-4 py-3.5">
-        <div className="mb-1.5">
-          <span className="text-[15px] font-medium leading-snug text-[#2c2c2a]">
-            {place.title}
-          </span>
-        </div>
-        <p className="mb-3 line-clamp-2 text-[12px] leading-relaxed text-[#888]">
-          {place.content}
-        </p>
-        <div className="flex items-center justify-end">
-          <span className="flex items-center gap-1 text-[12px] font-medium uppercase tracking-wide text-[#1D9E75]">
-            DETAILS
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M2 6h8M7 3l3 3-3 3" />
-            </svg>
-          </span>
+        <div className="px-4 py-3.5">
+          <div className="mb-1.5">
+            <span className="text-[15px] font-medium leading-snug text-[#2c2c2a]">
+              {place.title}
+            </span>
+          </div>
+          <p className="mb-3 line-clamp-2 text-[12px] leading-relaxed text-[#888]">
+            {place.content}
+          </p>
+          <div className="flex items-center justify-end">
+            <span className="flex items-center gap-1 text-[12px] font-medium uppercase tracking-wide text-[#1D9E75]">
+              DETAILS
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M2 6h8M7 3l3 3-3 3" />
+              </svg>
+            </span>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }

@@ -19,7 +19,7 @@ export default function TagCard({ theme, isSelected, onToggle }: TagCardProps) {
         hover:-translate-y-0.5 hover:shadow-xl
         ${
           isSelected
-            ? 'ring-2 ring-[#1D9E75] ring-offset-2 shadow-lg'
+            ? 'ring-2 ring-[#00BFA5] ring-offset-2 shadow-lg'
             : 'ring-2 ring-transparent'
         }`}
     >
@@ -36,7 +36,7 @@ export default function TagCard({ theme, isSelected, onToggle }: TagCardProps) {
       </span>
       {/* 체크 */}
       {isSelected && (
-        <div className="absolute right-2.5 top-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-[#1D9E75]">
+        <div className="absolute right-2.5 top-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-[#00BFA5]">
           <svg
             width="13"
             height="13"

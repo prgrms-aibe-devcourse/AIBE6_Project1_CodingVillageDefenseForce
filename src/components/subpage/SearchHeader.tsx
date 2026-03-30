@@ -32,7 +32,7 @@ export default function SearchHeader({
       <button
         onClick={onToggleFilter}
         className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-[13px] font-medium transition
-          ${showFilter ? 'bg-[#1D9E75] text-white' : 'bg-[#f5f5f4] text-[#292524] hover:bg-[#e8e6e0]'}`}
+          ${showFilter ? 'bg-[#00BFA5] text-white' : 'bg-[#f5f5f4] text-[#292524] hover:bg-[#e8e6e0]'}`}
       >
         <svg
           width="14"

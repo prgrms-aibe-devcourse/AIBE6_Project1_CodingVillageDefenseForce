@@ -99,7 +99,7 @@ export default function FilterPanel({
               onClick={() => onSelectSort(option)}
               className={`rounded-lg px-3 py-1.5 text-[13px] transition ${
                 selectedSort === option
-                  ? 'font-semibold text-[#1D9E75]'
+                  ? 'font-semibold text-[#00BFA5]'
                   : 'text-[#888] hover:text-[#2c2c2a]'
               }`}
             >
