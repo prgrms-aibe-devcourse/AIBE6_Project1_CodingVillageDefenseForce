@@ -31,7 +31,7 @@ function SubPageContent() {
   // wishList 등록을 위한 유저 정보
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   // 전체 지역 필터 출력용 State
-  const [location, setLocation] = useState<Location[]>([])
+  const [locations, setLocations] = useState<Location[]>([])
   // filter 를 위한(값 비교 등) State
   const [selectedRegion, setSelectedRegion] = useState('전체')
 

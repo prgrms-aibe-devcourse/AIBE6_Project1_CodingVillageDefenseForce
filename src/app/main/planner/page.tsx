@@ -1,5 +1,6 @@
 'use client'
 
+import Header from '@/components/layout/Header'
 import KakaoMapModal from './components/KaKaoMapModal'
 import PlannerDetail from './components/PlannerDetail'
 import PlannerList from './components/PlannerList'
