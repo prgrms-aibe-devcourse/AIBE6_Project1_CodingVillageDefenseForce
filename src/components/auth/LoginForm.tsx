@@ -1,5 +1,7 @@
+'use client'
+
 import Link from 'next/link'
-import { FormEventHandler } from 'react'
+import { FormEventHandler, useState } from 'react'
 
 import AuthShell from './AuthShell'
 
@@ -59,6 +61,42 @@ function LockIcon() {
       <rect x="5" y="11" width="14" height="10" rx="2" />
       <path d="M8 11V8a4 4 0 118 0v3" />
       <circle cx="12" cy="16" r="1" />
+    </svg>
+  )
+}
+
+function EyeIcon({ show }: { show: boolean }) {
+  if (show) {
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        className="h-5 w-5 text-[#bcc2ce] transition hover:text-[#6f7687]"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+        <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
+        <line x1="1" y1="1" x2="23" y2="23" />
+      </svg>
+    )
+  }
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5 text-[#bcc2ce] transition hover:text-[#6f7687]"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
     </svg>
   )
 }
@@ -145,6 +183,8 @@ export default function LoginForm({
   onGoogleLogin,
   onKakaoLogin,
 }: LoginFormProps) {
+  const [showPassword, setShowPassword] = useState(false)
+
   return (
     <AuthShell
       activeTab="login"
@@ -195,7 +235,7 @@ export default function LoginForm({
             <LockIcon />
             <input
               id="login-password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
               value={password}
               onChange={(event) => onPasswordChange(event.target.value)}
@@ -203,6 +243,13 @@ export default function LoginForm({
               autoComplete="current-password"
               className="w-full bg-transparent text-[0.9rem] text-[#13294b] placeholder:text-[#c6c9d2] outline-none"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+            >
+              <EyeIcon show={showPassword} />
+            </button>
           </div>
           <div className="flex justify-end gap-6 text-[0.82rem] text-[#707789]">
             {/* 비밀번호 찾기 버튼 */}

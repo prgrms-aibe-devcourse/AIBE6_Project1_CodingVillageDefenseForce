@@ -2,9 +2,10 @@
 
 import SignupForm from '@/components/auth/SignupForm'
 import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 import { FormEvent, useState } from 'react'
 
-const SIGNUP_SUCCESS_MESSAGE = '가입이 완료되었습니다. 로그인해주세요.'
+const SIGNUP_SUCCESS_MESSAGE = '가입 완료! 자동으로 로그인됩니다!'
 
 function getSignupErrorMessage(message: string) {
   const lowered = message.toLowerCase()
@@ -19,6 +20,7 @@ function getSignupErrorMessage(message: string) {
 
 export default function SignupPage() {
   const supabase = createClient()
+  const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -104,6 +106,20 @@ export default function SignupPage() {
 
     setIsSubmitting(false)
     setSuccessMessage(SIGNUP_SUCCESS_MESSAGE)
+
+    // 가입 완료 후 자동 로그인
+    const { error: loginError } = await supabase.auth.signInWithPassword({
+      email: normalizedEmail,
+      password,
+    })
+
+    if (loginError) {
+      // 자동 로그인 실패 시 로그인 페이지로 이동
+      router.push('/login')
+      return
+    }
+
+    router.push('/main')
   }
 
   return (

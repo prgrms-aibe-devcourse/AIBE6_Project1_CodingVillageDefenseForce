@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
 
 import AuthShell from './AuthShell'
 
@@ -74,6 +77,42 @@ function LockIcon() {
   )
 }
 
+function EyeIcon({ show }: { show: boolean }) {
+  if (show) {
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        className="h-5 w-5 text-[#bcc2ce] transition hover:text-[#6f7687]"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+        <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
+        <line x1="1" y1="1" x2="23" y2="23" />
+      </svg>
+    )
+  }
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5 text-[#bcc2ce] transition hover:text-[#6f7687]"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  )
+}
+
 export default function SignupForm({
   name,
   email,
@@ -90,6 +129,9 @@ export default function SignupForm({
   onAgreeChange,
   onSubmit,
 }: SignupFormProps) {
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
   return (
     <AuthShell
       activeTab="signup"
@@ -162,7 +204,7 @@ export default function SignupForm({
               <LockIcon />
               <input
                 id="signup-password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="8자 이상"
                 value={password}
                 onChange={(event) => onPasswordChange(event.target.value)}
@@ -170,6 +212,13 @@ export default function SignupForm({
                 autoComplete="new-password"
                 className="w-full bg-transparent text-[0.9rem] text-[#13294b] placeholder:text-[#c6c9d2] outline-none"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+              >
+                <EyeIcon show={showPassword} />
+              </button>
             </div>
           </div>
 
@@ -184,7 +233,7 @@ export default function SignupForm({
               <LockIcon />
               <input
                 id="signup-password-confirm"
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 placeholder="비밀번호 확인"
                 value={confirmPassword}
                 onChange={(event) =>
@@ -194,6 +243,13 @@ export default function SignupForm({
                 autoComplete="new-password"
                 className="w-full bg-transparent text-[0.9rem] text-[#13294b] placeholder:text-[#c6c9d2] outline-none"
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                aria-label={showConfirmPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+              >
+                <EyeIcon show={showConfirmPassword} />
+              </button>
             </div>
           </div>
         </div>
